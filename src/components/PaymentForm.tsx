@@ -6,6 +6,8 @@ import { PAYMENT_TYPE_META } from '@/lib/pay-utils';
 export interface MethodLimitInfo {
   available: boolean;
   remaining: number | null;
+  /** 单笔限额，0 = 使用全局 maxAmount */
+  singleMax?: number;
 }
 
 interface PaymentFormProps {
@@ -71,7 +73,9 @@ export default function PaymentForm({
 
   const selectedAmount = amount || 0;
   const isMethodAvailable = !methodLimits || (methodLimits[paymentType]?.available !== false);
-  const isValid = selectedAmount >= minAmount && selectedAmount <= maxAmount && hasValidCentPrecision(selectedAmount) && isMethodAvailable;
+  const methodSingleMax = methodLimits?.[paymentType]?.singleMax;
+  const effectiveMax = (methodSingleMax !== undefined && methodSingleMax > 0) ? methodSingleMax : maxAmount;
+  const isValid = selectedAmount >= minAmount && selectedAmount <= effectiveMax && hasValidCentPrecision(selectedAmount) && isMethodAvailable;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +155,7 @@ export default function PaymentForm({
           充值金额
         </label>
         <div className="grid grid-cols-3 gap-2">
-          {QUICK_AMOUNTS.filter((val) => val <= maxAmount).map((val) => (
+          {QUICK_AMOUNTS.filter((val) => val <= effectiveMax).map((val) => (
             <button
               key={val}
               type="button"
@@ -188,10 +192,10 @@ export default function PaymentForm({
             inputMode="decimal"
             step="0.01"
             min={minAmount}
-            max={maxAmount}
+            max={effectiveMax}
             value={customAmount}
             onChange={(e) => handleCustomAmountChange(e.target.value)}
-            placeholder={`${minAmount} - ${maxAmount}`}
+            placeholder={`${minAmount} - ${effectiveMax}`}
             className={[
               'w-full rounded-lg border py-3 pl-8 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
               dark ? 'border-slate-700 bg-slate-900 text-slate-100' : 'border-gray-300 bg-white text-gray-900',
@@ -205,7 +209,7 @@ export default function PaymentForm({
         let msg = '金额需在范围内，且最多支持 2 位小数（精确到分）';
         if (!isNaN(num)) {
           if (num < minAmount) msg = `单笔最低充值 ¥${minAmount}`;
-          else if (num > maxAmount) msg = `单笔最高充值 ¥${maxAmount}`;
+          else if (num > effectiveMax) msg = `单笔最高充值 ¥${effectiveMax}`;
         }
         return (
           <div className={['text-xs', dark ? 'text-amber-300' : 'text-amber-700'].join(' ')}>

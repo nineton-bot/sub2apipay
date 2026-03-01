@@ -37,11 +37,11 @@ const envSchema = z.object({
   // 每日每用户最大累计充值额，0 = 不限制
   MAX_DAILY_RECHARGE_AMOUNT: z.string().default('10000').transform(Number).pipe(z.number().min(0)),
 
-  // 每日各渠道全平台总限额，0 = 不限制
-  // 新增渠道按 MAX_DAILY_AMOUNT_{TYPE大写} 命名即可自动生效
-  MAX_DAILY_AMOUNT_ALIPAY: z.string().default('10000').transform(Number).pipe(z.number().min(0)),
-  MAX_DAILY_AMOUNT_WXPAY: z.string().default('10000').transform(Number).pipe(z.number().min(0)),
-  MAX_DAILY_AMOUNT_STRIPE: z.string().default('0').transform(Number).pipe(z.number().min(0)),
+  // 每日各渠道全平台总限额，可选覆盖（0 = 不限制）。
+  // 未设置时由各 PaymentProvider.defaultLimits 提供默认值。
+  MAX_DAILY_AMOUNT_ALIPAY: z.string().optional().transform((v) => (v !== undefined ? Number(v) : undefined)).pipe(z.number().min(0).optional()),
+  MAX_DAILY_AMOUNT_WXPAY: z.string().optional().transform((v) => (v !== undefined ? Number(v) : undefined)).pipe(z.number().min(0).optional()),
+  MAX_DAILY_AMOUNT_STRIPE: z.string().optional().transform((v) => (v !== undefined ? Number(v) : undefined)).pipe(z.number().min(0).optional()),
   PRODUCT_NAME: z.string().default('Sub2API Balance Recharge'),
 
   ADMIN_TOKEN: z.string().min(1),

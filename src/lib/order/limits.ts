@@ -1,17 +1,23 @@
 import { prisma } from '@/lib/db';
 import { getEnv } from '@/lib/config';
+import { initPaymentProviders, paymentRegistry } from '@/lib/payment';
 
 /**
  * 获取指定支付渠道的每日全平台限额（0 = 不限制）。
- * 优先读 config（Zod 验证），兜底读 process.env，适配未来动态注册的新渠道。
+ * 优先级：环境变量显式配置 > provider 默认值 > process.env 兜底 > 0
  */
 export function getMethodDailyLimit(paymentType: string): number {
   const env = getEnv();
   const key = `MAX_DAILY_AMOUNT_${paymentType.toUpperCase()}` as keyof typeof env;
   const val = env[key];
-  if (typeof val === 'number') return val;
+  if (typeof val === 'number') return val; // 明确配置（含 0）
 
-  // 兜底：支持动态渠道（未在 schema 中声明的 MAX_DAILY_AMOUNT_* 变量）
+  // 尝试从已注册的 provider 取默认值
+  initPaymentProviders();
+  const providerDefault = paymentRegistry.getDefaultLimit(paymentType);
+  if (providerDefault?.dailyMax !== undefined) return providerDefault.dailyMax;
+
+  // 兜底：process.env（支持未在 schema 中声明的动态渠道）
   const raw = process.env[`MAX_DAILY_AMOUNT_${paymentType.toUpperCase()}`];
   if (raw !== undefined) {
     const num = Number(raw);
@@ -20,15 +26,35 @@ export function getMethodDailyLimit(paymentType: string): number {
   return 0; // 默认不限制
 }
 
+/**
+ * 获取指定支付渠道的单笔限额（0 = 使用全局 MAX_RECHARGE_AMOUNT）。
+ * 优先级：process.env MAX_SINGLE_AMOUNT_* > provider 默认值 > 0
+ */
+export function getMethodSingleLimit(paymentType: string): number {
+  const raw = process.env[`MAX_SINGLE_AMOUNT_${paymentType.toUpperCase()}`];
+  if (raw !== undefined) {
+    const num = Number(raw);
+    if (Number.isFinite(num) && num >= 0) return num;
+  }
+
+  initPaymentProviders();
+  const providerDefault = paymentRegistry.getDefaultLimit(paymentType);
+  if (providerDefault?.singleMax !== undefined) return providerDefault.singleMax;
+
+  return 0; // 使用全局 MAX_RECHARGE_AMOUNT
+}
+
 export interface MethodLimitStatus {
   /** 每日限额，0 = 不限 */
   dailyLimit: number;
   /** 今日已使用金额 */
   used: number;
-  /** 剩余额度，null = 不限 */
+  /** 剩余每日额度，null = 不限 */
   remaining: number | null;
   /** 是否还可使用（false = 今日额度已满） */
   available: boolean;
+  /** 单笔限额，0 = 使用全局配置 MAX_RECHARGE_AMOUNT */
+  singleMax: number;
 }
 
 /**
@@ -58,6 +84,7 @@ export async function queryMethodLimits(
   const result: Record<string, MethodLimitStatus> = {};
   for (const type of paymentTypes) {
     const dailyLimit = getMethodDailyLimit(type);
+    const singleMax = getMethodSingleLimit(type);
     const used = usageMap[type] ?? 0;
     const remaining = dailyLimit > 0 ? Math.max(0, dailyLimit - used) : null;
     result[type] = {
@@ -65,6 +92,7 @@ export async function queryMethodLimits(
       used,
       remaining,
       available: dailyLimit === 0 || used < dailyLimit,
+      singleMax,
     };
   }
   return result;

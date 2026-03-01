@@ -1,4 +1,4 @@
-import type { PaymentProvider, PaymentType } from './types';
+import type { PaymentProvider, PaymentType, MethodDefaultLimits } from './types';
 
 export class PaymentProviderRegistry {
   private providers = new Map<PaymentType, PaymentProvider>();
@@ -23,6 +23,12 @@ export class PaymentProviderRegistry {
 
   getSupportedTypes(): PaymentType[] {
     return Array.from(this.providers.keys());
+  }
+
+  /** 获取指定渠道的提供商默认限额（未注册时返回 undefined） */
+  getDefaultLimit(type: string): MethodDefaultLimits | undefined {
+    const provider = this.providers.get(type as PaymentType);
+    return provider?.defaultLimits?.[type];
   }
 }
 

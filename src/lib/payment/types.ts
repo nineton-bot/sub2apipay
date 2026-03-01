@@ -51,10 +51,20 @@ export interface RefundResponse {
   status: 'success' | 'pending' | 'failed';
 }
 
+/** Per-method default limits declared by the provider */
+export interface MethodDefaultLimits {
+  /** 单笔最大金额，0 = 不限（使用全局 MAX_RECHARGE_AMOUNT） */
+  singleMax?: number;
+  /** 每日全平台最大金额，0 = 不限 */
+  dailyMax?: number;
+}
+
 /** Common interface that all payment providers must implement */
 export interface PaymentProvider {
   readonly name: string;
   readonly supportedTypes: PaymentType[];
+  /** 各渠道默认限额，key 为 PaymentType（如 'alipay'），可被环境变量覆盖 */
+  readonly defaultLimits?: Record<string, MethodDefaultLimits>;
 
   createPayment(request: CreatePaymentRequest): Promise<CreatePaymentResponse>;
   queryOrder(tradeNo: string): Promise<QueryOrderResponse>;
