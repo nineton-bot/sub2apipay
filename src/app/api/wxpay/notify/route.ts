@@ -1,11 +1,18 @@
 import { NextRequest } from 'next/server';
 import { handlePaymentNotify } from '@/lib/order/service';
 import { WxpayProvider } from '@/lib/wxpay';
+import { getEnv } from '@/lib/config';
 
 const wxpayProvider = new WxpayProvider();
 
 export async function POST(request: NextRequest) {
   try {
+    // 微信支付未配置时，直接返回成功（避免旧回调重试产生错误日志）
+    const env = getEnv();
+    if (!env.WXPAY_PUBLIC_KEY || !env.WXPAY_MCH_ID) {
+      return Response.json({ code: 'SUCCESS', message: '成功' });
+    }
+
     const rawBody = await request.text();
     const headers: Record<string, string> = {};
     request.headers.forEach((value, key) => {
