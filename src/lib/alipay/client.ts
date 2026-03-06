@@ -78,6 +78,7 @@ export async function execute<T extends AlipayResponse>(
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(params).toString(),
+    signal: AbortSignal.timeout(10_000),
   });
 
   const data = await response.json();

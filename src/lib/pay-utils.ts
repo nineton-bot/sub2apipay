@@ -83,10 +83,11 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
   wxpay: {
     label: '微信支付',
-    color: '#2BB741',
+    sublabel: 'WECHAT PAY',
+    color: '#07C160',
     selectedBorder: 'border-green-500',
     selectedBg: 'bg-green-50',
-    iconBg: 'bg-[#2BB741]',
+    iconBg: 'bg-[#07C160]',
   },
   stripe: {
     label: 'Stripe',

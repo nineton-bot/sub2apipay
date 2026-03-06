@@ -1,4 +1,5 @@
 import { initPaymentProviders, paymentRegistry } from '@/lib/payment';
+import { Prisma } from '@prisma/client';
 
 /**
  * 获取指定支付渠道的手续费率（百分比）。
@@ -26,13 +27,18 @@ export function getMethodFeeRate(paymentType: string): number {
   return 0;
 }
 
+/** decimal.js ROUND_UP = 0（远离零方向取整） */
+const ROUND_UP = 0;
+
 /**
- * 根据到账金额和手续费率计算实付金额。
- * feeAmount = ceil(rechargeAmount * feeRate / 100 * 100) / 100  （进一制到分）
+ * 根据到账金额和手续费率计算实付金额（使用 Decimal 精确计算，避免浮点误差）。
+ * feeAmount = ceil(rechargeAmount * feeRate / 100, 保留2位小数)
  * payAmount = rechargeAmount + feeAmount
  */
 export function calculatePayAmount(rechargeAmount: number, feeRate: number): number {
   if (feeRate <= 0) return rechargeAmount;
-  const feeAmount = Math.ceil(((rechargeAmount * feeRate) / 100) * 100) / 100;
-  return Math.round((rechargeAmount + feeAmount) * 100) / 100;
+  const amount = new Prisma.Decimal(rechargeAmount);
+  const rate = new Prisma.Decimal(feeRate.toString());
+  const feeAmount = amount.mul(rate).div(100).toDecimalPlaces(2, ROUND_UP);
+  return amount.plus(feeAmount).toNumber();
 }

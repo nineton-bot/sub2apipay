@@ -127,13 +127,22 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   try {
     initPaymentProviders();
     const provider = paymentRegistry.getProvider(input.paymentType);
+
+    // 只有 easypay 从外部传入 notifyUrl/returnUrl，其他 provider 内部读取自己的环境变量
+    let notifyUrl: string | undefined;
+    let returnUrl: string | undefined;
+    if (provider.providerKey === 'easypay') {
+      notifyUrl = env.EASY_PAY_NOTIFY_URL || '';
+      returnUrl = env.EASY_PAY_RETURN_URL || '';
+    }
+
     const paymentResult = await provider.createPayment({
       orderId: order.id,
       amount: payAmount,
       paymentType: input.paymentType,
       subject: `${env.PRODUCT_NAME} ${payAmount.toFixed(2)} CNY`,
-      notifyUrl: env.EASY_PAY_NOTIFY_URL || '',
-      returnUrl: env.EASY_PAY_RETURN_URL || '',
+      notifyUrl,
+      returnUrl,
       clientIp: input.clientIp,
     });
 
@@ -322,8 +331,30 @@ export async function confirmPayment(input: {
   }
   const expectedAmount = order.payAmount ?? order.amount;
   if (!paidAmount.equals(expectedAmount)) {
+    const diff = paidAmount.minus(expectedAmount).abs();
+    if (diff.gt(new Prisma.Decimal('0.01'))) {
+      // 写审计日志
+      await prisma.auditLog.create({
+        data: {
+          orderId: order.id,
+          action: 'PAYMENT_AMOUNT_MISMATCH',
+          detail: JSON.stringify({
+            expected: expectedAmount.toString(),
+            paid: paidAmount.toString(),
+            diff: diff.toString(),
+            tradeNo: input.tradeNo,
+          }),
+          operator: input.providerName,
+        },
+      });
+      console.error(
+        `${input.providerName} notify: amount mismatch beyond threshold`,
+        `expected=${expectedAmount.toString()}, paid=${paidAmount.toString()}, diff=${diff.toString()}`,
+      );
+      return false;
+    }
     console.warn(
-      `${input.providerName} notify: amount changed, use paid amount`,
+      `${input.providerName} notify: minor amount difference (rounding)`,
       expectedAmount.toString(),
       paidAmount.toString(),
     );
@@ -336,7 +367,6 @@ export async function confirmPayment(input: {
     },
     data: {
       status: 'PAID',
-      amount: paidAmount,
       paymentTradeNo: input.tradeNo,
       paidAt: new Date(),
       failedAt: null,
@@ -345,6 +375,35 @@ export async function confirmPayment(input: {
   });
 
   if (result.count === 0) {
+    // 重新查询当前状态，区分「已成功」和「需重试」
+    const current = await prisma.order.findUnique({
+      where: { id: order.id },
+      select: { status: true },
+    });
+    if (!current) return true;
+
+    // 已完成或已退款 — 告知支付平台成功
+    if (current.status === 'COMPLETED' || current.status === 'REFUNDED') {
+      return true;
+    }
+
+    // FAILED 状态 — 之前充值失败，利用重试通知自动重试充值
+    if (current.status === 'FAILED') {
+      try {
+        await executeRecharge(order.id);
+        return true;
+      } catch (err) {
+        console.error('Recharge retry failed for order:', order.id, err);
+        return false; // 让支付平台继续重试
+      }
+    }
+
+    // PAID / RECHARGING — 正在处理中，让支付平台稍后重试
+    if (current.status === 'PAID' || current.status === 'RECHARGING') {
+      return false;
+    }
+
+    // 其他状态（CANCELLED 等）— 不应该出现，返回 true 停止重试
     return true;
   }
 
@@ -366,6 +425,7 @@ export async function confirmPayment(input: {
     await executeRecharge(order.id);
   } catch (err) {
     console.error('Recharge failed for order:', order.id, err);
+    return false;
   }
 
   return true;
@@ -402,6 +462,16 @@ export async function executeRecharge(orderId: string): Promise<void> {
   }
   if (order.status !== 'PAID' && order.status !== 'FAILED') {
     throw new OrderError('INVALID_STATUS', `Order cannot recharge in status ${order.status}`, 400);
+  }
+
+  // 原子 CAS：将状态从 PAID/FAILED → RECHARGING，防止并发竞态
+  const lockResult = await prisma.order.updateMany({
+    where: { id: orderId, status: { in: ['PAID', 'FAILED'] } },
+    data: { status: 'RECHARGING' },
+  });
+  if (lockResult.count === 0) {
+    // 另一个并发请求已经在处理
+    return;
   }
 
   try {

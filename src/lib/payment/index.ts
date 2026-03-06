@@ -3,6 +3,7 @@ import type { PaymentType } from './types';
 import { EasyPayProvider } from '@/lib/easy-pay/provider';
 import { StripeProvider } from '@/lib/stripe/provider';
 import { AlipayProvider } from '@/lib/alipay/provider';
+import { WxpayProvider } from '@/lib/wxpay/provider';
 import { getEnv } from '@/lib/config';
 
 export { paymentRegistry } from './registry';
@@ -33,10 +34,29 @@ export function initPaymentProviders(): void {
   }
 
   if (providers.includes('alipay')) {
-    if (!env.ALIPAY_APP_ID || !env.ALIPAY_PRIVATE_KEY) {
-      throw new Error('PAYMENT_PROVIDERS 含 alipay，但缺少 ALIPAY_APP_ID 或 ALIPAY_PRIVATE_KEY');
+    if (!env.ALIPAY_APP_ID || !env.ALIPAY_PRIVATE_KEY || !env.ALIPAY_NOTIFY_URL) {
+      throw new Error(
+        'PAYMENT_PROVIDERS includes alipay but required env vars are missing: ALIPAY_APP_ID, ALIPAY_PRIVATE_KEY, ALIPAY_NOTIFY_URL',
+      );
     }
     paymentRegistry.register(new AlipayProvider());
+  }
+
+  if (providers.includes('wxpay')) {
+    if (
+      !env.WXPAY_APP_ID ||
+      !env.WXPAY_MCH_ID ||
+      !env.WXPAY_PRIVATE_KEY ||
+      !env.WXPAY_API_V3_KEY ||
+      !env.WXPAY_PUBLIC_KEY ||
+      !env.WXPAY_CERT_SERIAL ||
+      !env.WXPAY_NOTIFY_URL
+    ) {
+      throw new Error(
+        'PAYMENT_PROVIDERS includes wxpay but required env vars are missing: WXPAY_APP_ID, WXPAY_MCH_ID, WXPAY_PRIVATE_KEY, WXPAY_API_V3_KEY, WXPAY_PUBLIC_KEY, WXPAY_CERT_SERIAL, WXPAY_NOTIFY_URL',
+      );
+    }
+    paymentRegistry.register(new WxpayProvider());
   }
 
   if (providers.includes('stripe')) {

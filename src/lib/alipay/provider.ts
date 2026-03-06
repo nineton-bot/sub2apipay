@@ -78,14 +78,7 @@ export class AlipayProvider implements PaymentProvider {
     }
 
     const sign = params.sign || '';
-    const paramsForVerify: Record<string, string> = {};
-    for (const [key, value] of Object.entries(params)) {
-      if (key !== 'sign' && key !== 'sign_type' && value !== undefined && value !== null) {
-        paramsForVerify[key] = value;
-      }
-    }
-
-    if (!env.ALIPAY_PUBLIC_KEY || !verifySign(paramsForVerify, env.ALIPAY_PUBLIC_KEY, sign)) {
+    if (!env.ALIPAY_PUBLIC_KEY || !verifySign(params, env.ALIPAY_PUBLIC_KEY, sign)) {
       throw new Error('Alipay notification signature verification failed');
     }
 

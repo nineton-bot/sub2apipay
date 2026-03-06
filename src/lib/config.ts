@@ -12,7 +12,7 @@ const envSchema = z.object({
   SUB2API_BASE_URL: z.string().url(),
   SUB2API_ADMIN_API_KEY: z.string().min(1),
 
-  // ── 支付服务商（显式声明启用哪些服务商，逗号分隔：easypay, stripe） ──
+  // ── 支付服务商（显式声明启用哪些服务商，逗号分隔：easypay, alipay, wxpay, stripe） ──
   PAYMENT_PROVIDERS: z
     .string()
     .default('')
@@ -39,6 +39,16 @@ const envSchema = z.object({
   ALIPAY_PUBLIC_KEY: optionalTrimmedString,
   ALIPAY_NOTIFY_URL: optionalTrimmedString,
   ALIPAY_RETURN_URL: optionalTrimmedString,
+
+  // ── 微信支付直连（PAYMENT_PROVIDERS 含 wxpay 时必填） ──
+  WXPAY_APP_ID: optionalTrimmedString,
+  WXPAY_MCH_ID: optionalTrimmedString,
+  WXPAY_PRIVATE_KEY: optionalTrimmedString,
+  WXPAY_CERT_SERIAL: optionalTrimmedString,
+  WXPAY_API_V3_KEY: optionalTrimmedString,
+  WXPAY_NOTIFY_URL: optionalTrimmedString,
+  WXPAY_PUBLIC_KEY: optionalTrimmedString,
+  WXPAY_PUBLIC_KEY_ID: optionalTrimmedString,
 
   // ── Stripe（PAYMENT_PROVIDERS 含 stripe 时必填） ──
   STRIPE_SECRET_KEY: optionalTrimmedString,
