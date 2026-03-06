@@ -70,6 +70,9 @@ export default function PaymentQRCode({
   const [popupBlocked, setPopupBlocked] = useState(false);
   const paymentMethodListenerAdded = useRef(false);
 
+  // alipay_direct 使用电脑网站支付，payUrl 是跳转链接不是二维码内容
+  const isAlipayDirect = paymentType === 'alipay_direct';
+
   const qrPayload = useMemo(() => {
     // alipay_direct 的 payUrl 是跳转链接，不应生成二维码
     if (isAlipayDirect && !qrCode) return '';
@@ -316,8 +319,6 @@ export default function PaymentQRCode({
   };
 
   const isWx = paymentType?.startsWith('wxpay');
-  // alipay_direct 使用电脑网站支付，payUrl 是跳转链接不是二维码内容
-  const isAlipayDirect = paymentType === 'alipay_direct';
   const iconSrc = isStripe ? '' : isWx ? '/icons/wxpay.svg' : '/icons/alipay.svg';
   const channelLabel = isStripe ? 'Stripe' : isWx ? '\u5FAE\u4FE1' : '\u652F\u4ED8\u5B9D';
   const iconBgClass = isStripe ? 'bg-[#635bff]' : isWx ? 'bg-[#07C160]' : 'bg-[#1677FF]';
