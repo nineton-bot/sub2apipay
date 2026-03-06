@@ -92,7 +92,6 @@ export interface PaymentTypeMeta {
 export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   [PAYMENT_TYPE.ALIPAY]: {
     label: '支付宝',
-    sublabel: '易支付',
     provider: '易支付',
     color: '#00AEEF',
     selectedBorder: 'border-cyan-400',
@@ -104,7 +103,6 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
   [PAYMENT_TYPE.ALIPAY_DIRECT]: {
     label: '支付宝',
-    sublabel: '官方',
     provider: '支付宝',
     color: '#1677FF',
     selectedBorder: 'border-blue-500',
@@ -116,7 +114,6 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
   [PAYMENT_TYPE.WXPAY]: {
     label: '微信支付',
-    sublabel: '易支付',
     provider: '易支付',
     color: '#2BB741',
     selectedBorder: 'border-green-500',
@@ -128,7 +125,6 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
   [PAYMENT_TYPE.WXPAY_DIRECT]: {
     label: '微信支付',
-    sublabel: '官方',
     provider: '微信支付',
     color: '#07C160',
     selectedBorder: 'border-green-600',
@@ -140,7 +136,6 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
   [PAYMENT_TYPE.STRIPE]: {
     label: 'Stripe',
-    sublabel: '信用卡 / 借记卡',
     provider: 'Stripe',
     color: '#635bff',
     selectedBorder: 'border-[#635bff]',
@@ -151,11 +146,16 @@ export const PAYMENT_TYPE_META: Record<string, PaymentTypeMeta> = {
   },
 };
 
-/** 获取支付方式的显示名称（如 '支付宝（官方）'） */
+/** 获取支付方式的显示名称（如 '支付宝（易支付）'），用于管理后台等需要区分的场景 */
 export function getPaymentTypeLabel(type: string): string {
   const meta = PAYMENT_TYPE_META[type];
   if (!meta) return type;
-  return meta.sublabel ? `${meta.label}（${meta.sublabel}）` : meta.label;
+  if (meta.sublabel) return `${meta.label}（${meta.sublabel}）`;
+  // 无 sublabel 时，检查是否有同名渠道需要用 provider 区分
+  const hasDuplicate = Object.entries(PAYMENT_TYPE_META).some(
+    ([k, m]) => k !== type && m.label === meta.label,
+  );
+  return hasDuplicate ? `${meta.label}（${meta.provider}）` : meta.label;
 }
 
 /** 获取支付渠道和提供商的结构化信息 */

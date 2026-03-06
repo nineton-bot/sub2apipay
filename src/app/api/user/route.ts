@@ -3,6 +3,7 @@ import { getUser } from '@/lib/sub2api/client';
 import { getEnv } from '@/lib/config';
 import { queryMethodLimits } from '@/lib/order/limits';
 import { initPaymentProviders, paymentRegistry } from '@/lib/payment';
+import { PAYMENT_TYPE_META } from '@/lib/pay-utils';
 
 export async function GET(request: NextRequest) {
   const userId = Number(request.nextUrl.searchParams.get('user_id'));
@@ -16,8 +17,28 @@ export async function GET(request: NextRequest) {
     const enabledTypes = paymentRegistry.getSupportedTypes();
     const [user, methodLimits] = await Promise.all([getUser(userId), queryMethodLimits(enabledTypes)]);
 
-    // 收集 sublabel 覆盖（仅包含用户实际配置的项）
+    // 收集 sublabel 覆盖
     const sublabelOverrides: Record<string, string> = {};
+
+    // 1. 检测同 label 冲突：多个启用渠道有相同的显示名，自动标记默认 sublabel（provider 名）
+    const labelCount = new Map<string, string[]>();
+    for (const type of enabledTypes) {
+      const meta = PAYMENT_TYPE_META[type];
+      if (!meta) continue;
+      const types = labelCount.get(meta.label) || [];
+      types.push(type);
+      labelCount.set(meta.label, types);
+    }
+    for (const [, types] of labelCount) {
+      if (types.length > 1) {
+        for (const type of types) {
+          const meta = PAYMENT_TYPE_META[type];
+          if (meta) sublabelOverrides[type] = meta.provider;
+        }
+      }
+    }
+
+    // 2. 用户手动配置的 PAYMENT_SUBLABEL_* 优先级最高，覆盖自动生成的
     if (env.PAYMENT_SUBLABEL_ALIPAY) sublabelOverrides.alipay = env.PAYMENT_SUBLABEL_ALIPAY;
     if (env.PAYMENT_SUBLABEL_ALIPAY_DIRECT) sublabelOverrides.alipay_direct = env.PAYMENT_SUBLABEL_ALIPAY_DIRECT;
     if (env.PAYMENT_SUBLABEL_WXPAY) sublabelOverrides.wxpay = env.PAYMENT_SUBLABEL_WXPAY;
