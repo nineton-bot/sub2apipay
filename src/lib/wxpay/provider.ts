@@ -35,7 +35,10 @@ export class WxpayProvider implements PaymentProvider {
       throw new Error('WXPAY_NOTIFY_URL is required');
     }
 
-    if (request.clientIp) {
+    if (request.isMobile) {
+      if (!request.clientIp) {
+        throw new Error('clientIp is required for H5 payment');
+      }
       const h5Url = await createH5Order({
         out_trade_no: request.orderId,
         description: request.subject,

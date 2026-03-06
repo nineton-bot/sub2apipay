@@ -16,6 +16,7 @@ export interface CreateOrderInput {
   amount: number;
   paymentType: PaymentType;
   clientIp: string;
+  isMobile?: boolean;
   srcHost?: string;
   srcUrl?: string;
 }
@@ -144,6 +145,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       notifyUrl,
       returnUrl,
       clientIp: input.clientIp,
+      isMobile: input.isMobile,
     });
 
     await prisma.order.update({

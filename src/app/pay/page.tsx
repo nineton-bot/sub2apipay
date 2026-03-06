@@ -249,6 +249,7 @@ function PayContent() {
           user_id: effectiveUserId,
           amount,
           payment_type: paymentType,
+          is_mobile: isMobile,
           src_host: srcHost,
           src_url: srcUrl,
         }),

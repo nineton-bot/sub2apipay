@@ -7,6 +7,7 @@ const createOrderSchema = z.object({
   user_id: z.number().int().positive(),
   amount: z.number().positive(),
   payment_type: z.enum(['alipay', 'wxpay', 'stripe']),
+  is_mobile: z.boolean().optional(),
   src_host: z.string().max(253).optional(),
   src_url: z.string().max(2048).optional(),
 });
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '参数错误', details: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const { user_id, amount, payment_type, src_host, src_url } = parsed.data;
+    const { user_id, amount, payment_type, is_mobile, src_host, src_url } = parsed.data;
 
     // Validate amount range
     if (amount < env.MIN_RECHARGE_AMOUNT || amount > env.MAX_RECHARGE_AMOUNT) {
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       amount,
       paymentType: payment_type,
       clientIp,
+      isMobile: is_mobile,
       srcHost: src_host,
       srcUrl: src_url,
     });

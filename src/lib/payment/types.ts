@@ -10,6 +10,7 @@ export interface CreatePaymentRequest {
   notifyUrl?: string;
   returnUrl?: string;
   clientIp?: string;
+  isMobile?: boolean;
 }
 
 /** Response from creating a payment */
