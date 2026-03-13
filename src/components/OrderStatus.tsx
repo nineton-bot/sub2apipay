@@ -24,7 +24,12 @@ function getStatusConfig(order: PublicOrderStatusSnapshot, locale: Locale, isDar
           icon: '✓',
           message: 'Your balance has been credited. Thank you for your payment.',
         }
-      : { label: '充值成功', color: isDark ? 'text-green-400' : 'text-green-600', icon: '✓', message: '余额已到账，感谢您的充值！' };
+      : {
+          label: '充值成功',
+          color: isDark ? 'text-green-400' : 'text-green-600',
+          icon: '✓',
+          message: '余额已到账，感谢您的充值！',
+        };
   }
 
   if (order.paymentSuccess) {
@@ -36,7 +41,12 @@ function getStatusConfig(order: PublicOrderStatusSnapshot, locale: Locale, isDar
             icon: '⟳',
             message: 'Payment received. Recharging your balance...',
           }
-        : { label: '充值中', color: isDark ? 'text-blue-400' : 'text-blue-600', icon: '⟳', message: '支付成功，正在充值余额中，请稍候...' };
+        : {
+            label: '充值中',
+            color: isDark ? 'text-blue-400' : 'text-blue-600',
+            icon: '⟳',
+            message: '支付成功，正在充值余额中，请稍候...',
+          };
     }
 
     if (order.rechargeStatus === 'failed') {
@@ -77,8 +87,18 @@ function getStatusConfig(order: PublicOrderStatusSnapshot, locale: Locale, isDar
 
   if (order.status === 'PENDING') {
     return locale === 'en'
-      ? { label: 'Awaiting Payment', color: isDark ? 'text-yellow-400' : 'text-yellow-600', icon: '⏳', message: 'The order has not been paid yet.' }
-      : { label: '等待支付', color: isDark ? 'text-yellow-400' : 'text-yellow-600', icon: '⏳', message: '订单尚未完成支付。' };
+      ? {
+          label: 'Awaiting Payment',
+          color: isDark ? 'text-yellow-400' : 'text-yellow-600',
+          icon: '⏳',
+          message: 'The order has not been paid yet.',
+        }
+      : {
+          label: '等待支付',
+          color: isDark ? 'text-yellow-400' : 'text-yellow-600',
+          icon: '⏳',
+          message: '订单尚未完成支付。',
+        };
   }
 
   if (order.status === 'EXPIRED') {
@@ -89,12 +109,22 @@ function getStatusConfig(order: PublicOrderStatusSnapshot, locale: Locale, isDar
           icon: '⏰',
           message: 'This order has expired. Please create a new one.',
         }
-      : { label: '订单超时', color: isDark ? 'text-slate-400' : 'text-gray-500', icon: '⏰', message: '订单已超时，请重新创建订单。' };
+      : {
+          label: '订单超时',
+          color: isDark ? 'text-slate-400' : 'text-gray-500',
+          icon: '⏰',
+          message: '订单已超时，请重新创建订单。',
+        };
   }
 
   if (order.status === 'CANCELLED') {
     return locale === 'en'
-      ? { label: 'Cancelled', color: isDark ? 'text-slate-400' : 'text-gray-500', icon: '✗', message: 'The order has been cancelled.' }
+      ? {
+          label: 'Cancelled',
+          color: isDark ? 'text-slate-400' : 'text-gray-500',
+          icon: '✗',
+          message: 'The order has been cancelled.',
+        }
       : { label: '已取消', color: isDark ? 'text-slate-400' : 'text-gray-500', icon: '✗', message: '订单已取消。' };
   }
 
@@ -105,7 +135,12 @@ function getStatusConfig(order: PublicOrderStatusSnapshot, locale: Locale, isDar
         icon: '✗',
         message: 'Payment status is abnormal. Please contact the administrator.',
       }
-    : { label: '支付异常', color: isDark ? 'text-red-400' : 'text-red-600', icon: '✗', message: '支付状态异常，请联系管理员处理。' };
+    : {
+        label: '支付异常',
+        color: isDark ? 'text-red-400' : 'text-red-600',
+        icon: '✗',
+        message: '支付状态异常，请联系管理员处理。',
+      };
 }
 
 export default function OrderStatus({

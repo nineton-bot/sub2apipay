@@ -85,12 +85,18 @@ export async function setSystemConfig(key: string, value: string, group?: string
   invalidateConfigCache(key);
 }
 
-export async function setSystemConfigs(configs: { key: string; value: string; group?: string; label?: string }[]): Promise<void> {
+export async function setSystemConfigs(
+  configs: { key: string; value: string; group?: string; label?: string }[],
+): Promise<void> {
   await prisma.$transaction(
     configs.map((c) =>
       prisma.systemConfig.upsert({
         where: { key: c.key },
-        update: { value: c.value, ...(c.group !== undefined && { group: c.group }), ...(c.label !== undefined && { label: c.label }) },
+        update: {
+          value: c.value,
+          ...(c.group !== undefined && { group: c.group }),
+          ...(c.label !== undefined && { label: c.label }),
+        },
         create: { key: c.key, value: c.value, group: c.group ?? 'general', label: c.label },
       }),
     ),
@@ -98,7 +104,9 @@ export async function setSystemConfigs(configs: { key: string; value: string; gr
   invalidateConfigCache();
 }
 
-export async function getSystemConfigsByGroup(group: string): Promise<{ key: string; value: string; label: string | null }[]> {
+export async function getSystemConfigsByGroup(
+  group: string,
+): Promise<{ key: string; value: string; label: string | null }[]> {
   return prisma.systemConfig.findMany({
     where: { group },
     select: { key: true, value: true, label: true },
@@ -106,7 +114,9 @@ export async function getSystemConfigsByGroup(group: string): Promise<{ key: str
   });
 }
 
-export async function getAllSystemConfigs(): Promise<{ key: string; value: string; group: string; label: string | null }[]> {
+export async function getAllSystemConfigs(): Promise<
+  { key: string; value: string; group: string; label: string | null }[]
+> {
   return prisma.systemConfig.findMany({
     select: { key: true, value: true, group: true, label: true },
     orderBy: [{ group: 'asc' }, { key: 'asc' }],

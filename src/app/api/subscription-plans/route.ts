@@ -25,7 +25,11 @@ export async function GET(request: NextRequest) {
       plans.map(async (plan) => {
         let groupActive = false;
         let group: Awaited<ReturnType<typeof getGroup>> = null;
-        let groupInfo: { daily_limit_usd: number | null; weekly_limit_usd: number | null; monthly_limit_usd: number | null } | null = null;
+        let groupInfo: {
+          daily_limit_usd: number | null;
+          weekly_limit_usd: number | null;
+          monthly_limit_usd: number | null;
+        } | null = null;
         try {
           group = await getGroup(plan.groupId);
           groupActive = group !== null && group.status === 'active';

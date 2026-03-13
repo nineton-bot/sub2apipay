@@ -285,7 +285,9 @@ function ChannelsContent() {
           if (c.key === 'BALANCE_PAYMENT_DISABLED') setRcBalanceEnabled(c.value !== 'true');
         }
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [token]);
 
   const saveRechargeConfig = async () => {
@@ -302,7 +304,12 @@ function ChannelsContent() {
           configs: [
             { key: 'PRODUCT_NAME_PREFIX', value: rcPrefix.trim(), group: 'payment', label: '商品名前缀' },
             { key: 'PRODUCT_NAME_SUFFIX', value: rcSuffix.trim(), group: 'payment', label: '商品名后缀' },
-            { key: 'BALANCE_PAYMENT_DISABLED', value: rcBalanceEnabled ? 'false' : 'true', group: 'payment', label: '余额充值禁用' },
+            {
+              key: 'BALANCE_PAYMENT_DISABLED',
+              value: rcBalanceEnabled ? 'false' : 'true',
+              group: 'payment',
+              label: '余额充值禁用',
+            },
           ],
         }),
       });
@@ -633,7 +640,12 @@ function ChannelsContent() {
           </div>
           <div>
             <label className={labelCls}>{t.preview}</label>
-            <div className={['rounded-lg border px-3 py-2 text-sm', isDark ? 'border-slate-600 bg-slate-700 text-slate-300' : 'border-slate-300 bg-slate-50 text-slate-600'].join(' ')}>
+            <div
+              className={[
+                'rounded-lg border px-3 py-2 text-sm',
+                isDark ? 'border-slate-600 bg-slate-700 text-slate-300' : 'border-slate-300 bg-slate-50 text-slate-600',
+              ].join(' ')}
+            >
               {`${rcPrefix.trim() || 'Sub2API'} 100 ${rcSuffix.trim() || 'CNY'}`.trim()}
             </div>
           </div>
@@ -687,7 +699,11 @@ function ChannelsContent() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className={isDark ? 'border-b border-slate-700 text-slate-400' : 'border-b border-slate-200 text-slate-500'}>
+              <tr
+                className={
+                  isDark ? 'border-b border-slate-700 text-slate-400' : 'border-b border-slate-200 text-slate-500'
+                }
+              >
                 <th className="px-4 py-3 text-left font-medium">{t.colName}</th>
                 <th className="px-4 py-3 text-left font-medium">{t.colPlatform}</th>
                 <th className="px-4 py-3 text-left font-medium">{t.colRate}</th>
@@ -721,14 +737,30 @@ function ChannelsContent() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       {channel.groupExists ? (
-                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${isDark ? 'bg-emerald-900/40 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}>
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <span
+                          className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${isDark ? 'bg-emerald-900/40 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}
+                        >
+                          <svg
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </span>
                       ) : (
-                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${isDark ? 'bg-red-900/40 text-red-400' : 'bg-red-100 text-red-600'}`}>
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <span
+                          className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${isDark ? 'bg-red-900/40 text-red-400' : 'bg-red-100 text-red-600'}`}
+                        >
+                          <svg
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </span>
@@ -1004,9 +1036,7 @@ function ChannelsContent() {
                           <span className={`text-sm font-medium ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                             {group.name}
                           </span>
-                          <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                            #{group.id}
-                          </span>
+                          <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>#{group.id}</span>
                           <PlatformBadge platform={group.platform} className="text-[10px]" />
                           {alreadyImported && (
                             <span className="text-[10px] text-amber-500 font-medium">{t.syncAlreadyExists}</span>

@@ -281,7 +281,9 @@ function StripePopupContent() {
               className={[
                 'w-full rounded-lg py-3 font-medium text-white shadow-md transition-colors',
                 stripeSubmitting
-                  ? isDark ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-gray-400 cursor-not-allowed'
+                  ? isDark
+                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                    : 'bg-gray-400 cursor-not-allowed'
                   : getPaymentMeta('stripe').buttonClass,
               ].join(' ')}
             >
@@ -308,7 +310,9 @@ function StripePopupFallback() {
 
   return (
     <div className={`flex min-h-screen items-center justify-center ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
-      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>{pickLocaleText(locale, '加载中...', 'Loading...')}</div>
+      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>
+        {pickLocaleText(locale, '加载中...', 'Loading...')}
+      </div>
     </div>
   );
 }

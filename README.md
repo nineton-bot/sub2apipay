@@ -115,28 +115,28 @@ PAYMENT_PROVIDERS=easypay
 
 直接对接支付宝开放平台，支持 PC 页面支付（`alipay.trade.page.pay`）和手机网站支付（`alipay.trade.wap.pay`），自动根据终端类型切换。
 
-| 变量                 | 说明                    |
-| -------------------- | ----------------------- |
-| `ALIPAY_APP_ID`      | 支付宝应用 AppID        |
-| `ALIPAY_PRIVATE_KEY`  | 应用私钥（内容或文件路径） |
-| `ALIPAY_PUBLIC_KEY`   | 支付宝公钥（内容或文件路径） |
-| `ALIPAY_NOTIFY_URL`   | 异步回调地址            |
-| `ALIPAY_RETURN_URL`   | 同步跳转地址（可选）    |
+| 变量                 | 说明                         |
+| -------------------- | ---------------------------- |
+| `ALIPAY_APP_ID`      | 支付宝应用 AppID             |
+| `ALIPAY_PRIVATE_KEY` | 应用私钥（内容或文件路径）   |
+| `ALIPAY_PUBLIC_KEY`  | 支付宝公钥（内容或文件路径） |
+| `ALIPAY_NOTIFY_URL`  | 异步回调地址                 |
+| `ALIPAY_RETURN_URL`  | 同步跳转地址（可选）         |
 
 #### 微信支付直连
 
 直接对接微信支付 APIv3，支持 Native 扫码支付和 H5 支付，移动端优先尝试 H5，自动 fallback 到扫码。
 
-| 变量                   | 说明                        |
-| ---------------------- | --------------------------- |
-| `WXPAY_APP_ID`         | 微信支付 AppID              |
-| `WXPAY_MCH_ID`         | 商户号                      |
-| `WXPAY_PRIVATE_KEY`    | 商户 API 私钥（内容或文件路径） |
-| `WXPAY_CERT_SERIAL`    | 商户证书序列号              |
-| `WXPAY_API_V3_KEY`     | APIv3 密钥                  |
-| `WXPAY_PUBLIC_KEY`     | 微信支付公钥（内容或文件路径） |
-| `WXPAY_PUBLIC_KEY_ID`  | 微信支付公钥 ID             |
-| `WXPAY_NOTIFY_URL`     | 异步回调地址                |
+| 变量                  | 说明                            |
+| --------------------- | ------------------------------- |
+| `WXPAY_APP_ID`        | 微信支付 AppID                  |
+| `WXPAY_MCH_ID`        | 商户号                          |
+| `WXPAY_PRIVATE_KEY`   | 商户 API 私钥（内容或文件路径） |
+| `WXPAY_CERT_SERIAL`   | 商户证书序列号                  |
+| `WXPAY_API_V3_KEY`    | APIv3 密钥                      |
+| `WXPAY_PUBLIC_KEY`    | 微信支付公钥（内容或文件路径）  |
+| `WXPAY_PUBLIC_KEY_ID` | 微信支付公钥 ID                 |
+| `WXPAY_NOTIFY_URL`    | 异步回调地址                    |
 
 #### EasyPay（支付宝 / 微信支付聚合）
 
@@ -178,15 +178,15 @@ PAYMENT_PROVIDERS=easypay
 
 | 变量                             | 说明                                     | 默认值                     |
 | -------------------------------- | ---------------------------------------- | -------------------------- |
-| `MIN_RECHARGE_AMOUNT`           | 单笔最低充值金额（元）                   | `1`                        |
-| `MAX_RECHARGE_AMOUNT`           | 单笔最高充值金额（元）                   | `1000`                     |
-| `MAX_DAILY_RECHARGE_AMOUNT`     | 每日每用户累计最高充值（元，`0` = 不限） | `10000`                    |
-| `MAX_DAILY_AMOUNT_ALIPAY`       | 易支付支付宝渠道每日全局限额（可选）     | 由提供商默认               |
-| `MAX_DAILY_AMOUNT_ALIPAY_DIRECT`| 支付宝直连渠道每日全局限额（可选）       | 由提供商默认               |
-| `MAX_DAILY_AMOUNT_WXPAY`        | 微信支付渠道每日全局限额（可选）         | 由提供商默认               |
-| `MAX_DAILY_AMOUNT_STRIPE`       | Stripe 渠道每日全局限额（可选）          | 由提供商默认               |
-| `ORDER_TIMEOUT_MINUTES`         | 订单超时分钟数                           | `5`                        |
-| `PRODUCT_NAME`                  | 充值商品名称（显示在支付页）             | `Sub2API Balance Recharge` |
+| `MIN_RECHARGE_AMOUNT`            | 单笔最低充值金额（元）                   | `1`                        |
+| `MAX_RECHARGE_AMOUNT`            | 单笔最高充值金额（元）                   | `1000`                     |
+| `MAX_DAILY_RECHARGE_AMOUNT`      | 每日每用户累计最高充值（元，`0` = 不限） | `10000`                    |
+| `MAX_DAILY_AMOUNT_ALIPAY`        | 易支付支付宝渠道每日全局限额（可选）     | 由提供商默认               |
+| `MAX_DAILY_AMOUNT_ALIPAY_DIRECT` | 支付宝直连渠道每日全局限额（可选）       | 由提供商默认               |
+| `MAX_DAILY_AMOUNT_WXPAY`         | 微信支付渠道每日全局限额（可选）         | 由提供商默认               |
+| `MAX_DAILY_AMOUNT_STRIPE`        | Stripe 渠道每日全局限额（可选）          | 由提供商默认               |
+| `ORDER_TIMEOUT_MINUTES`          | 订单超时分钟数                           | `5`                        |
+| `PRODUCT_NAME`                   | 充值商品名称（显示在支付页）             | `Sub2API Balance Recharge` |
 
 ### UI 定制（可选）
 
@@ -297,11 +297,11 @@ docker compose exec app npx prisma migrate deploy
 
 在 Sub2API 管理后台可配置以下页面链接：
 
-| 页面     | 链接                                 | 说明                    |
-| -------- | ------------------------------------ | ----------------------- |
-| 充值页面 | `https://pay.example.com/pay`        | 用户充值入口            |
-| 我的订单 | `https://pay.example.com/pay/orders` | 用户查看自己的充值记录  |
-| 管理后台 | `https://pay.example.com/admin`      | 管理后台入口（仅管理员）|
+| 页面     | 链接                                 | 说明                     |
+| -------- | ------------------------------------ | ------------------------ |
+| 充值页面 | `https://pay.example.com/pay`        | 用户充值入口             |
+| 我的订单 | `https://pay.example.com/pay/orders` | 用户查看自己的充值记录   |
+| 管理后台 | `https://pay.example.com/admin`      | 管理后台入口（仅管理员） |
 
 Sub2API **v0.1.88** 及以上版本会自动拼接以下参数，无需手动添加：
 
@@ -319,13 +319,13 @@ Sub2API **v0.1.88** 及以上版本会自动拼接以下参数，无需手动添
 
 访问：`https://pay.example.com/admin?token=YOUR_ADMIN_TOKEN`
 
-| 模块     | 路径                   | 说明                                        |
-| -------- | ---------------------- | ------------------------------------------- |
-| 总览     | `/admin`               | 聚合入口，卡片式导航到各管理模块            |
+| 模块     | 路径                   | 说明                                           |
+| -------- | ---------------------- | ---------------------------------------------- |
+| 总览     | `/admin`               | 聚合入口，卡片式导航到各管理模块               |
 | 订单管理 | `/admin/orders`        | 按状态筛选、分页浏览、订单详情、重试/取消/退款 |
-| 数据概览 | `/admin/dashboard`     | 收入统计、订单趋势、支付方式分布            |
-| 渠道管理 | `/admin/channels`      | 配置 API 渠道与倍率，支持从 Sub2API 同步    |
-| 订阅管理 | `/admin/subscriptions` | 管理订阅套餐与用户订阅                      |
+| 数据概览 | `/admin/dashboard`     | 收入统计、订单趋势、支付方式分布               |
+| 渠道管理 | `/admin/channels`      | 配置 API 渠道与倍率，支持从 Sub2API 同步       |
+| 订阅管理 | `/admin/subscriptions` | 管理订阅套餐与用户订阅                         |
 
 ---
 
@@ -365,55 +365,55 @@ Sub2API **v0.1.88** 及以上版本会自动拼接以下参数，无需手动添
 
 用户侧接口，通过 URL 参数 `user_id` + `token` 鉴权。
 
-| 方法   | 路径                         | 说明                                     |
-| ------ | ---------------------------- | ---------------------------------------- |
-| `GET`  | `/api/user`                  | 获取当前用户信息                         |
-| `GET`  | `/api/users/:id`             | 获取指定用户信息                         |
-| `POST` | `/api/orders`                | 创建充值 / 订阅订单                      |
-| `GET`  | `/api/orders/:id`            | 查询订单详情                             |
-| `POST` | `/api/orders/:id/cancel`     | 用户取消待支付订单                       |
-| `GET`  | `/api/orders/my`             | 查询当前用户的订单列表                   |
-| `GET`  | `/api/channels`              | 获取渠道列表（前端展示用）               |
-| `GET`  | `/api/subscription-plans`    | 获取在售订阅套餐列表                     |
-| `GET`  | `/api/subscriptions/my`      | 查询当前用户的订阅状态                   |
-| `GET`  | `/api/limits`                | 查询充值限额与支付方式可用状态           |
+| 方法   | 路径                      | 说明                           |
+| ------ | ------------------------- | ------------------------------ |
+| `GET`  | `/api/user`               | 获取当前用户信息               |
+| `GET`  | `/api/users/:id`          | 获取指定用户信息               |
+| `POST` | `/api/orders`             | 创建充值 / 订阅订单            |
+| `GET`  | `/api/orders/:id`         | 查询订单详情                   |
+| `POST` | `/api/orders/:id/cancel`  | 用户取消待支付订单             |
+| `GET`  | `/api/orders/my`          | 查询当前用户的订单列表         |
+| `GET`  | `/api/channels`           | 获取渠道列表（前端展示用）     |
+| `GET`  | `/api/subscription-plans` | 获取在售订阅套餐列表           |
+| `GET`  | `/api/subscriptions/my`   | 查询当前用户的订阅状态         |
+| `GET`  | `/api/limits`             | 查询充值限额与支付方式可用状态 |
 
 ### 支付回调
 
 由支付服务商异步调用，签名验证后触发到账流程。
 
-| 方法   | 路径                         | 说明                                     |
-| ------ | ---------------------------- | ---------------------------------------- |
-| `GET`  | `/api/easy-pay/notify`       | EasyPay 异步回调（GET 方式）             |
-| `POST` | `/api/alipay/notify`         | 支付宝直连异步回调                       |
-| `POST` | `/api/wxpay/notify`          | 微信支付直连异步回调                     |
-| `POST` | `/api/stripe/webhook`        | Stripe Webhook 回调                      |
+| 方法   | 路径                   | 说明                         |
+| ------ | ---------------------- | ---------------------------- |
+| `GET`  | `/api/easy-pay/notify` | EasyPay 异步回调（GET 方式） |
+| `POST` | `/api/alipay/notify`   | 支付宝直连异步回调           |
+| `POST` | `/api/wxpay/notify`    | 微信支付直连异步回调         |
+| `POST` | `/api/stripe/webhook`  | Stripe Webhook 回调          |
 
 ### 管理 API
 
 需通过 `token` 参数传递 `ADMIN_TOKEN` 鉴权。
 
-| 方法     | 路径                                | 说明                               |
-| -------- | ----------------------------------- | ---------------------------------- |
-| `GET`    | `/api/admin/orders`                 | 订单列表（分页、状态筛选）         |
-| `GET`    | `/api/admin/orders/:id`             | 订单详情（含审计日志）             |
-| `POST`   | `/api/admin/orders/:id/cancel`      | 管理员取消订单                     |
-| `POST`   | `/api/admin/orders/:id/retry`       | 重试失败的充值 / 订阅              |
-| `POST`   | `/api/admin/refund`                 | 发起退款                           |
-| `GET`    | `/api/admin/dashboard`              | 数据概览（收入统计、趋势）         |
-| `GET`    | `/api/admin/channels`               | 渠道列表                           |
-| `POST`   | `/api/admin/channels`               | 创建渠道                           |
-| `PUT`    | `/api/admin/channels/:id`           | 更新渠道                           |
-| `DELETE` | `/api/admin/channels/:id`           | 删除渠道                           |
-| `GET`    | `/api/admin/subscription-plans`     | 订阅套餐列表                       |
-| `POST`   | `/api/admin/subscription-plans`     | 创建订阅套餐                       |
-| `PUT`    | `/api/admin/subscription-plans/:id` | 更新订阅套餐                       |
-| `DELETE` | `/api/admin/subscription-plans/:id` | 删除订阅套餐                       |
-| `GET`    | `/api/admin/subscriptions`          | 用户订阅记录列表                   |
-| `GET`    | `/api/admin/config`                 | 获取系统配置                       |
-| `PUT`    | `/api/admin/config`                 | 更新系统配置                       |
-| `GET`    | `/api/admin/sub2api/groups`         | 从 Sub2API 同步渠道分组            |
-| `GET`    | `/api/admin/sub2api/search-users`   | 搜索 Sub2API 用户                  |
+| 方法     | 路径                                | 说明                       |
+| -------- | ----------------------------------- | -------------------------- |
+| `GET`    | `/api/admin/orders`                 | 订单列表（分页、状态筛选） |
+| `GET`    | `/api/admin/orders/:id`             | 订单详情（含审计日志）     |
+| `POST`   | `/api/admin/orders/:id/cancel`      | 管理员取消订单             |
+| `POST`   | `/api/admin/orders/:id/retry`       | 重试失败的充值 / 订阅      |
+| `POST`   | `/api/admin/refund`                 | 发起退款                   |
+| `GET`    | `/api/admin/dashboard`              | 数据概览（收入统计、趋势） |
+| `GET`    | `/api/admin/channels`               | 渠道列表                   |
+| `POST`   | `/api/admin/channels`               | 创建渠道                   |
+| `PUT`    | `/api/admin/channels/:id`           | 更新渠道                   |
+| `DELETE` | `/api/admin/channels/:id`           | 删除渠道                   |
+| `GET`    | `/api/admin/subscription-plans`     | 订阅套餐列表               |
+| `POST`   | `/api/admin/subscription-plans`     | 创建订阅套餐               |
+| `PUT`    | `/api/admin/subscription-plans/:id` | 更新订阅套餐               |
+| `DELETE` | `/api/admin/subscription-plans/:id` | 删除订阅套餐               |
+| `GET`    | `/api/admin/subscriptions`          | 用户订阅记录列表           |
+| `GET`    | `/api/admin/config`                 | 获取系统配置               |
+| `PUT`    | `/api/admin/config`                 | 更新系统配置               |
+| `GET`    | `/api/admin/sub2api/groups`         | 从 Sub2API 同步渠道分组    |
+| `GET`    | `/api/admin/sub2api/search-users`   | 搜索 Sub2API 用户          |
 
 ---
 

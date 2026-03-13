@@ -60,7 +60,15 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   const orderType = input.orderType ?? 'balance';
 
   // ── 订阅订单前置校验 ──
-  let subscriptionPlan: { id: string; groupId: number; price: Prisma.Decimal; validityDays: number; validityUnit: string; name: string; productName: string | null } | null = null;
+  let subscriptionPlan: {
+    id: string;
+    groupId: number;
+    price: Prisma.Decimal;
+    validityDays: number;
+    validityUnit: string;
+    name: string;
+    productName: string | null;
+  } | null = null;
   let subscriptionGroupName = '';
 
   // R6: 余额充值禁用检查
@@ -77,11 +85,19 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
   if (orderType === 'subscription') {
     if (!input.planId) {
-      throw new OrderError('INVALID_INPUT', message(locale, '订阅订单必须指定套餐', 'Subscription order requires a plan'), 400);
+      throw new OrderError(
+        'INVALID_INPUT',
+        message(locale, '订阅订单必须指定套餐', 'Subscription order requires a plan'),
+        400,
+      );
     }
     const plan = await prisma.subscriptionPlan.findUnique({ where: { id: input.planId } });
     if (!plan || !plan.forSale) {
-      throw new OrderError('PLAN_NOT_AVAILABLE', message(locale, '该套餐不存在或未上架', 'Plan not found or not for sale'), 404);
+      throw new OrderError(
+        'PLAN_NOT_AVAILABLE',
+        message(locale, '该套餐不存在或未上架', 'Plan not found or not for sale'),
+        404,
+      );
     }
     // 校验 Sub2API 分组仍然存在
     const group = await getGroup(plan.groupId);
@@ -284,7 +300,11 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
           amount: input.amount,
           paymentType: input.paymentType,
           orderType,
-          ...(subscriptionPlan && { planId: subscriptionPlan.id, planName: subscriptionPlan.name, groupId: subscriptionPlan.groupId }),
+          ...(subscriptionPlan && {
+            planId: subscriptionPlan.id,
+            planName: subscriptionPlan.name,
+            groupId: subscriptionPlan.groupId,
+          }),
         }),
         operator: `user:${input.userId}`,
       },
@@ -683,9 +703,7 @@ export async function executeSubscriptionFulfillment(orderId: string): Promise<v
       data: {
         status: ORDER_STATUS.FAILED,
         failedAt: new Date(),
-        failedReason: isGroupGone
-          ? `SUBSCRIPTION_GROUP_GONE: ${reason}`
-          : reason,
+        failedReason: isGroupGone ? `SUBSCRIPTION_GROUP_GONE: ${reason}` : reason,
       },
     });
 

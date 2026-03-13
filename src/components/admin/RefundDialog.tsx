@@ -73,9 +73,7 @@ export default function RefundDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div
-        className={['w-full max-w-md rounded-xl p-6 shadow-xl', dark ? 'bg-slate-900' : 'bg-white'].join(' ')}
-      >
+      <div className={['w-full max-w-md rounded-xl p-6 shadow-xl', dark ? 'bg-slate-900' : 'bg-white'].join(' ')}>
         <h3 className={['text-lg font-bold', dark ? 'text-slate-100' : 'text-gray-900'].join(' ')}>{text.title}</h3>
 
         <div className="mt-4 space-y-3">
@@ -149,7 +147,9 @@ export default function RefundDialog({
             disabled={loading || (requireForce && !force)}
             className={[
               'flex-1 rounded-lg py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed',
-              dark ? 'bg-red-600/90 disabled:bg-slate-700 disabled:text-slate-500' : 'bg-red-600 disabled:bg-gray-300 disabled:text-gray-400',
+              dark
+                ? 'bg-red-600/90 disabled:bg-slate-700 disabled:text-slate-500'
+                : 'bg-red-600 disabled:bg-gray-300 disabled:text-gray-400',
             ].join(' ')}
           >
             {loading ? text.processing : text.confirm}

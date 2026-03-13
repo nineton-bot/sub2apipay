@@ -39,11 +39,26 @@ function daysUntil(iso: string): number {
 
 function getStatusBadge(status: string, isDark: boolean, locale: Locale): { text: string; className: string } {
   const statusMap: Record<string, { zh: string; en: string; cls: string; clsDark: string }> = {
-    active: { zh: '生效中', en: 'Active', cls: 'bg-emerald-100 text-emerald-700', clsDark: 'bg-emerald-900/40 text-emerald-300' },
-    expired: { zh: '已过期', en: 'Expired', cls: 'bg-slate-100 text-slate-600', clsDark: 'bg-slate-700 text-slate-400' },
+    active: {
+      zh: '生效中',
+      en: 'Active',
+      cls: 'bg-emerald-100 text-emerald-700',
+      clsDark: 'bg-emerald-900/40 text-emerald-300',
+    },
+    expired: {
+      zh: '已过期',
+      en: 'Expired',
+      cls: 'bg-slate-100 text-slate-600',
+      clsDark: 'bg-slate-700 text-slate-400',
+    },
     cancelled: { zh: '已取消', en: 'Cancelled', cls: 'bg-red-100 text-red-700', clsDark: 'bg-red-900/40 text-red-300' },
   };
-  const entry = statusMap[status] || { zh: status, en: status, cls: 'bg-slate-100 text-slate-600', clsDark: 'bg-slate-700 text-slate-400' };
+  const entry = statusMap[status] || {
+    zh: status,
+    en: status,
+    cls: 'bg-slate-100 text-slate-600',
+    clsDark: 'bg-slate-700 text-slate-400',
+  };
   return {
     text: pickLocaleText(locale, entry.zh, entry.en),
     className: isDark ? entry.clsDark : entry.cls,
@@ -59,8 +74,18 @@ export default function UserSubscriptions({ subscriptions, onRenew, isDark, loca
           isDark ? 'border-slate-700 bg-slate-800/50 text-slate-400' : 'border-slate-200 bg-slate-50 text-slate-500',
         ].join(' ')}
       >
-        <svg className="mb-3 h-12 w-12 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <svg
+          className="mb-3 h-12 w-12 opacity-40"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
         </svg>
         <p className="text-sm">{pickLocaleText(locale, '暂无订阅', 'No Subscriptions')}</p>
       </div>
@@ -110,15 +135,31 @@ export default function UserSubscriptions({ subscriptions, onRenew, isDark, loca
             </div>
 
             {/* Dates */}
-            <div className={['mb-3 grid grid-cols-2 gap-3 text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
+            <div
+              className={['mb-3 grid grid-cols-2 gap-3 text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(
+                ' ',
+              )}
+            >
               <div>
-                <span className={['text-xs uppercase tracking-wide', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{pickLocaleText(locale, '开始', 'Start')}</span>
+                <span
+                  className={['text-xs uppercase tracking-wide', isDark ? 'text-slate-500' : 'text-slate-400'].join(
+                    ' ',
+                  )}
+                >
+                  {pickLocaleText(locale, '开始', 'Start')}
+                </span>
                 <p className={['font-medium', isDark ? 'text-slate-300' : 'text-slate-700'].join(' ')}>
                   {formatDate(sub.starts_at)}
                 </p>
               </div>
               <div>
-                <span className={['text-xs uppercase tracking-wide', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{pickLocaleText(locale, '到期', 'Expires')}</span>
+                <span
+                  className={['text-xs uppercase tracking-wide', isDark ? 'text-slate-500' : 'text-slate-400'].join(
+                    ' ',
+                  )}
+                >
+                  {pickLocaleText(locale, '到期', 'Expires')}
+                </span>
                 <p className={['font-medium', isDark ? 'text-slate-300' : 'text-slate-700'].join(' ')}>
                   {formatDate(sub.expires_at)}
                 </p>
@@ -133,11 +174,7 @@ export default function UserSubscriptions({ subscriptions, onRenew, isDark, loca
                   isDark ? 'bg-amber-900/30 text-amber-300' : 'bg-amber-50 text-amber-700',
                 ].join(' ')}
               >
-                {pickLocaleText(
-                  locale,
-                  `即将到期，剩余 ${remaining} 天`,
-                  `Expiring soon, ${remaining} days remaining`,
-                )}
+                {pickLocaleText(locale, `即将到期，剩余 ${remaining} 天`, `Expiring soon, ${remaining} days remaining`)}
               </div>
             )}
 

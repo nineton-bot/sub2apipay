@@ -32,11 +32,11 @@ export default function SubscriptionConfirm({
 
   const periodLabel = formatValidityLabel(plan.validityDays, plan.validityUnit ?? 'day', locale);
 
-  const hasLimits = plan.limits && (
-    plan.limits.daily_limit_usd !== null ||
-    plan.limits.weekly_limit_usd !== null ||
-    plan.limits.monthly_limit_usd !== null
-  );
+  const hasLimits =
+    plan.limits &&
+    (plan.limits.daily_limit_usd !== null ||
+      plan.limits.weekly_limit_usd !== null ||
+      plan.limits.monthly_limit_usd !== null);
 
   const isOpenAI = plan.platform?.toLowerCase() === 'openai';
 
@@ -90,10 +90,12 @@ export default function SubscriptionConfirm({
             {periodLabel}
           </span>
           {isOpenAI && plan.allowMessagesDispatch && (
-            <span className={[
-              'rounded-full px-2 py-0.5 text-xs font-medium',
-              isDark ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700',
-            ].join(' ')}>
+            <span
+              className={[
+                'rounded-full px-2 py-0.5 text-xs font-medium',
+                isDark ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700',
+              ].join(' ')}
+            >
               /v1/messages
             </span>
           )}
@@ -166,10 +168,12 @@ export default function SubscriptionConfirm({
 
         {/* OpenAI specific: default model */}
         {isOpenAI && plan.defaultMappedModel && (
-          <div className={[
-            'flex items-center justify-between rounded-lg border px-3 py-2 text-sm',
-            isDark ? 'border-green-500/30 bg-green-500/10' : 'border-green-200 bg-green-50/50',
-          ].join(' ')}>
+          <div
+            className={[
+              'flex items-center justify-between rounded-lg border px-3 py-2 text-sm',
+              isDark ? 'border-green-500/30 bg-green-500/10' : 'border-green-200 bg-green-50/50',
+            ].join(' ')}
+          >
             <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>
               {pickLocaleText(locale, '默认模型', 'Default Model')}
             </span>
@@ -284,9 +288,7 @@ export default function SubscriptionConfirm({
               : 'cursor-not-allowed bg-slate-200 text-slate-400',
         ].join(' ')}
       >
-        {loading
-          ? pickLocaleText(locale, '处理中...', 'Processing...')
-          : pickLocaleText(locale, '立即购买', 'Buy Now')}
+        {loading ? pickLocaleText(locale, '处理中...', 'Processing...') : pickLocaleText(locale, '立即购买', 'Buy Now')}
       </button>
     </div>
   );

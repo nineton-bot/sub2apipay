@@ -468,10 +468,12 @@ export default function PaymentQRCode({
                     ].join(' ')}
                   />
                   {stripeError && (
-                    <div className={[
-                      'rounded-lg border p-3 text-sm',
-                      dark ? 'border-red-700/50 bg-red-900/30 text-red-400' : 'border-red-200 bg-red-50 text-red-600',
-                    ].join(' ')}>
+                    <div
+                      className={[
+                        'rounded-lg border p-3 text-sm',
+                        dark ? 'border-red-700/50 bg-red-900/30 text-red-400' : 'border-red-200 bg-red-50 text-red-600',
+                      ].join(' ')}
+                    >
                       {stripeError}
                     </div>
                   )}

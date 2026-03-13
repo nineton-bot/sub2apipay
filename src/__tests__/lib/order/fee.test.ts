@@ -7,7 +7,12 @@ describe('calculatePayAmount', () => {
     { rechargeAmount: 100, feeRate: -1, expected: '100.00', desc: 'feeRate<0 返回原金额' },
     { rechargeAmount: 100, feeRate: 3, expected: '103.00', desc: '100 * 3% = 3.00' },
     { rechargeAmount: 100, feeRate: 2.5, expected: '102.50', desc: '100 * 2.5% = 2.50' },
-    { rechargeAmount: 99.99, feeRate: 1, expected: '100.99', desc: '99.99 * 1% = 0.9999 → ROUND_UP → 1.00, total 100.99' },
+    {
+      rechargeAmount: 99.99,
+      feeRate: 1,
+      expected: '100.99',
+      desc: '99.99 * 1% = 0.9999 → ROUND_UP → 1.00, total 100.99',
+    },
     { rechargeAmount: 10, feeRate: 3, expected: '10.30', desc: '10 * 3% = 0.30' },
     { rechargeAmount: 1, feeRate: 1, expected: '1.01', desc: '1 * 1% = 0.01' },
   ])('$desc (amount=$rechargeAmount, rate=$feeRate)', ({ rechargeAmount, feeRate, expected }) => {

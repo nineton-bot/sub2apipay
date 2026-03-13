@@ -16,10 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const [subscriptions, groups] = await Promise.all([
-      getUserSubscriptions(userId),
-      getAllGroups().catch(() => []),
-    ]);
+    const [subscriptions, groups] = await Promise.all([getUserSubscriptions(userId), getAllGroups().catch(() => [])]);
 
     const groupMap = new Map(groups.map((g) => [g.id, g]));
 

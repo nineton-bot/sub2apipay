@@ -30,7 +30,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.price !== undefined && (typeof body.price !== 'number' || body.price <= 0 || body.price > 99999999.99)) {
       return NextResponse.json({ error: 'price 必须是 0.01 ~ 99999999.99 之间的数值' }, { status: 400 });
     }
-    if (body.original_price !== undefined && body.original_price !== null && (typeof body.original_price !== 'number' || body.original_price <= 0 || body.original_price > 99999999.99)) {
+    if (
+      body.original_price !== undefined &&
+      body.original_price !== null &&
+      (typeof body.original_price !== 'number' || body.original_price <= 0 || body.original_price > 99999999.99)
+    ) {
       return NextResponse.json({ error: 'original_price 必须是 0.01 ~ 99999999.99 之间的数值' }, { status: 400 });
     }
     if (body.validity_days !== undefined && (!Number.isInteger(body.validity_days) || body.validity_days <= 0)) {
@@ -100,10 +104,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     });
 
     if (activeOrderCount > 0) {
-      return NextResponse.json(
-        { error: `该套餐仍有 ${activeOrderCount} 个活跃订单，无法删除` },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: `该套餐仍有 ${activeOrderCount} 个活跃订单，无法删除` }, { status: 409 });
     }
 
     await prisma.subscriptionPlan.delete({ where: { id } });

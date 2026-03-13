@@ -229,7 +229,9 @@ export async function subtractBalance(
 
 // ── 用户搜索 API ──
 
-export async function searchUsers(keyword: string): Promise<{ id: number; email: string; username: string; notes?: string }[]> {
+export async function searchUsers(
+  keyword: string,
+): Promise<{ id: number; email: string; username: string; notes?: string }[]> {
   const env = getEnv();
   const response = await fetch(
     `${env.SUB2API_BASE_URL}/api/v1/admin/users?search=${encodeURIComponent(keyword)}&page=1&page_size=30`,

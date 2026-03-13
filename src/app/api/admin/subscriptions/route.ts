@@ -25,9 +25,7 @@ export async function GET(request: NextRequest) {
         getUser(parsedUserId).catch(() => null),
       ]);
 
-      const filtered = groupId
-        ? subscriptions.filter((s) => s.group_id === Number(groupId))
-        : subscriptions;
+      const filtered = groupId ? subscriptions.filter((s) => s.group_id === Number(groupId)) : subscriptions;
 
       return NextResponse.json({
         subscriptions: filtered,

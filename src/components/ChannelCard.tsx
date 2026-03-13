@@ -61,8 +61,12 @@ export default function ChannelCard({ channel, onTopUp, isDark, locale }: Channe
           <p className={['mt-1 text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
             {pickLocaleText(
               locale,
-              <>1元可用约<span className={['font-medium', accentCls].join(' ')}>{usableQuota}</span>美元额度</>,
-              <>1 CNY ≈ <span className={['font-medium', accentCls].join(' ')}>{usableQuota}</span> USD quota</>,
+              <>
+                1元可用约<span className={['font-medium', accentCls].join(' ')}>{usableQuota}</span>美元额度
+              </>,
+              <>
+                1 CNY ≈ <span className={['font-medium', accentCls].join(' ')}>{usableQuota}</span> USD quota
+              </>,
             )}
           </p>
         </div>
@@ -85,10 +89,7 @@ export default function ChannelCard({ channel, onTopUp, isDark, locale }: Channe
             {channel.models.map((model) => (
               <span
                 key={model}
-                className={[
-                  'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs',
-                  tagCls,
-                ].join(' ')}
+                className={['inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs', tagCls].join(' ')}
               >
                 <span className={['h-1.5 w-1.5 rounded-full', ps.modelTag.dot].join(' ')} />
                 {model}

@@ -170,10 +170,12 @@ export default function PaymentForm({
       </div>
 
       {fixedAmount ? (
-        <div className={[
-          'rounded-xl border p-4 text-center',
-          dark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50',
-        ].join(' ')}>
+        <div
+          className={[
+            'rounded-xl border p-4 text-center',
+            dark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50',
+          ].join(' ')}
+        >
           <div className={['text-xs uppercase tracking-wide', dark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
             {locale === 'en' ? 'Recharge Amount' : '充值金额'}
           </div>
@@ -240,7 +242,8 @@ export default function PaymentForm({
         </>
       )}
 
-      {!fixedAmount && customAmount !== '' &&
+      {!fixedAmount &&
+        customAmount !== '' &&
         !isValid &&
         (() => {
           const num = parseFloat(customAmount);

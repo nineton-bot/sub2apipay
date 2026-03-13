@@ -40,11 +40,11 @@ export default function SubscriptionPlanCard({ plan, onSubscribe, isDark, locale
   const periodLabel = formatValidityLabel(plan.validityDays, unit, locale);
   const periodSuffix = formatValiditySuffix(plan.validityDays, unit, locale);
 
-  const hasLimits = plan.limits && (
-    plan.limits.daily_limit_usd !== null ||
-    plan.limits.weekly_limit_usd !== null ||
-    plan.limits.monthly_limit_usd !== null
-  );
+  const hasLimits =
+    plan.limits &&
+    (plan.limits.daily_limit_usd !== null ||
+      plan.limits.weekly_limit_usd !== null ||
+      plan.limits.monthly_limit_usd !== null);
 
   const isOpenAI = plan.platform?.toLowerCase() === 'openai';
   const ps = getPlatformStyle(plan.platform ?? '');
@@ -61,9 +61,7 @@ export default function SubscriptionPlanCard({ plan, onSubscribe, isDark, locale
       <div className="mb-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {plan.platform && <PlatformBadge platform={plan.platform} />}
-          <h3 className={['text-lg font-bold', isDark ? 'text-slate-100' : 'text-slate-900'].join(' ')}>
-            {plan.name}
-          </h3>
+          <h3 className={['text-lg font-bold', isDark ? 'text-slate-100' : 'text-slate-900'].join(' ')}>{plan.name}</h3>
           <span
             className={[
               'rounded-full px-2.5 py-0.5 text-xs font-medium',
@@ -73,10 +71,12 @@ export default function SubscriptionPlanCard({ plan, onSubscribe, isDark, locale
             {periodLabel}
           </span>
           {isOpenAI && plan.allowMessagesDispatch && (
-            <span className={[
-              'rounded-full px-2 py-0.5 text-xs font-medium',
-              isDark ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700',
-            ].join(' ')}>
+            <span
+              className={[
+                'rounded-full px-2 py-0.5 text-xs font-medium',
+                isDark ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700',
+              ].join(' ')}
+            >
               /v1/messages
             </span>
           )}
@@ -90,9 +90,7 @@ export default function SubscriptionPlanCard({ plan, onSubscribe, isDark, locale
             </span>
           )}
           <span className={['text-3xl font-bold', accentCls].join(' ')}>¥{plan.price}</span>
-          <span className={['text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
-            {periodSuffix}
-          </span>
+          <span className={['text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>{periodSuffix}</span>
         </div>
       </div>
 
@@ -153,10 +151,12 @@ export default function SubscriptionPlanCard({ plan, onSubscribe, isDark, locale
 
       {/* OpenAI specific: default model */}
       {isOpenAI && plan.defaultMappedModel && (
-        <div className={[
-          'mb-4 flex items-center justify-between rounded-lg border px-3 py-2 text-sm',
-          isDark ? 'border-green-500/30 bg-green-500/10' : 'border-green-200 bg-green-50/50',
-        ].join(' ')}>
+        <div
+          className={[
+            'mb-4 flex items-center justify-between rounded-lg border px-3 py-2 text-sm',
+            isDark ? 'border-green-500/30 bg-green-500/10' : 'border-green-200 bg-green-50/50',
+          ].join(' ')}
+        >
           <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>
             {pickLocaleText(locale, '默认模型', 'Default Model')}
           </span>

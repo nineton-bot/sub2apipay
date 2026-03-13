@@ -102,19 +102,28 @@ function PayContent() {
   const renderHelpSection = () => {
     if (!hasHelpContent) return null;
     return (
-      <div className={[
-        'mt-6 rounded-2xl border p-4',
-        isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50',
-      ].join(' ')}>
+      <div
+        className={[
+          'mt-6 rounded-2xl border p-4',
+          isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50',
+        ].join(' ')}
+      >
         <div className={['text-xs font-medium', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
           {pickLocaleText(locale, '帮助', 'Support')}
         </div>
         {helpImageUrl && (
-          <img src={helpImageUrl} alt="help" onClick={() => setHelpImageOpen(true)} className={`mt-3 max-h-40 w-full cursor-zoom-in rounded-lg object-contain p-2 ${isDark ? 'bg-slate-700/50' : 'bg-white/70'}`} />
+          <img
+            src={helpImageUrl}
+            alt="help"
+            onClick={() => setHelpImageOpen(true)}
+            className={`mt-3 max-h-40 w-full cursor-zoom-in rounded-lg object-contain p-2 ${isDark ? 'bg-slate-700/50' : 'bg-white/70'}`}
+          />
         )}
         {helpText && (
           <div className={['mt-3 space-y-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}>
-            {helpText.split('\n').map((line, i) => (<p key={i}>{line}</p>))}
+            {helpText.split('\n').map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
           </div>
         )}
       </div>
@@ -233,7 +242,8 @@ function PayContent() {
         const subData = await subRes.json();
         setUserSubscriptions(subData.subscriptions ?? []);
       }
-    } catch {} finally {
+    } catch {
+    } finally {
       setChannelsLoaded(true);
     }
   }, [token]);
@@ -282,10 +292,7 @@ function PayContent() {
   // 检查订单完成后是否是订阅分组消失的情况
   useEffect(() => {
     if (step !== 'result' || !finalOrderState) return;
-    if (
-      finalOrderState.status === 'FAILED' &&
-      finalOrderState.failedReason?.includes('SUBSCRIPTION_GROUP_GONE')
-    ) {
+    if (finalOrderState.status === 'FAILED' && finalOrderState.failedReason?.includes('SUBSCRIPTION_GROUP_GONE')) {
       setSubscriptionError(
         pickLocaleText(
           locale,
@@ -302,7 +309,11 @@ function PayContent() {
         <div className="text-center text-red-500">
           <p className="text-lg font-medium">{pickLocaleText(locale, '缺少认证信息', 'Missing authentication info')}</p>
           <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-            {pickLocaleText(locale, '请从 Sub2API 平台正确访问充值页面', 'Please open the recharge page from the Sub2API platform')}
+            {pickLocaleText(
+              locale,
+              '请从 Sub2API 平台正确访问充值页面',
+              'Please open the recharge page from the Sub2API platform',
+            )}
           </p>
         </div>
       </div>
@@ -315,7 +326,11 @@ function PayContent() {
         <div className="text-center text-red-500">
           <p className="text-lg font-medium">{pickLocaleText(locale, '用户不存在', 'User not found')}</p>
           <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-            {pickLocaleText(locale, '请检查链接是否正确，或联系管理员', 'Please check whether the link is correct or contact the administrator')}
+            {pickLocaleText(
+              locale,
+              '请检查链接是否正确，或联系管理员',
+              'Please check whether the link is correct or contact the administrator',
+            )}
           </p>
         </div>
       </div>
@@ -380,7 +395,9 @@ function PayContent() {
           METHOD_DAILY_LIMIT_EXCEEDED: data.error,
           PAYMENT_GATEWAY_ERROR: data.error,
         };
-        setError(codeMessages[data.code] || data.error || pickLocaleText(locale, '创建订单失败', 'Failed to create order'));
+        setError(
+          codeMessages[data.code] || data.error || pickLocaleText(locale, '创建订单失败', 'Failed to create order'),
+        );
         return;
       }
 
@@ -492,10 +509,15 @@ function PayContent() {
           <>
             <button
               type="button"
-              onClick={() => { loadUserAndOrders(); loadChannelsAndPlans(); }}
+              onClick={() => {
+                loadUserAndOrders();
+                loadChannelsAndPlans();
+              }}
               className={[
                 'inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
-                isDark ? 'border-slate-600 text-slate-200 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
+                isDark
+                  ? 'border-slate-600 text-slate-200 hover:bg-slate-800'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100',
               ].join(' ')}
             >
               {pickLocaleText(locale, '刷新', 'Refresh')}
@@ -504,7 +526,9 @@ function PayContent() {
               href={ordersUrl}
               className={[
                 'inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
-                isDark ? 'border-slate-600 text-slate-200 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100',
+                isDark
+                  ? 'border-slate-600 text-slate-200 hover:bg-slate-800'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100',
               ].join(' ')}
             >
               {pickLocaleText(locale, '我的订单', 'My Orders')}
@@ -515,10 +539,12 @@ function PayContent() {
     >
       {/* 订阅分组消失的常驻错误 */}
       {subscriptionError && (
-        <div className={[
-          'mb-4 rounded-lg border-2 p-4 text-sm',
-          isDark ? 'border-red-600 bg-red-900/40 text-red-300' : 'border-red-400 bg-red-50 text-red-700',
-        ].join(' ')}>
+        <div
+          className={[
+            'mb-4 rounded-lg border-2 p-4 text-sm',
+            isDark ? 'border-red-600 bg-red-900/40 text-red-300' : 'border-red-400 bg-red-50 text-red-700',
+          ].join(' ')}
+        >
           <div className="font-semibold mb-1">{pickLocaleText(locale, '订阅开通失败', 'Subscription Failed')}</div>
           <div>{subscriptionError}</div>
           {orderResult && (
@@ -530,10 +556,12 @@ function PayContent() {
       )}
 
       {error && (
-        <div className={[
-          'mb-4 rounded-lg border p-3 text-sm',
-          isDark ? 'border-red-700 bg-red-900/30 text-red-400' : 'border-red-200 bg-red-50 text-red-600',
-        ].join(' ')}>
+        <div
+          className={[
+            'mb-4 rounded-lg border p-3 text-sm',
+            isDark ? 'border-red-700 bg-red-900/30 text-red-400' : 'border-red-200 bg-red-50 text-red-600',
+          ].join(' ')}
+        >
           {error}
         </div>
       )}
@@ -543,18 +571,24 @@ function PayContent() {
         <>
           {/* 移动端 Tab：充值/订单 */}
           {isMobile && (
-            <div className={[
-              'mb-4 grid grid-cols-2 rounded-xl border p-1',
-              isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-300 bg-slate-100/90',
-            ].join(' ')}>
+            <div
+              className={[
+                'mb-4 grid grid-cols-2 rounded-xl border p-1',
+                isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-300 bg-slate-100/90',
+              ].join(' ')}
+            >
               <button
                 type="button"
                 onClick={() => setActiveMobileTab('pay')}
                 className={[
                   'rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200',
                   activeMobileTab === 'pay'
-                    ? isDark ? 'bg-indigo-500/30 text-indigo-100 ring-1 ring-indigo-300/35 shadow-sm' : 'bg-white text-slate-900 ring-1 ring-slate-300 shadow-md shadow-slate-300/50'
-                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700',
+                    ? isDark
+                      ? 'bg-indigo-500/30 text-indigo-100 ring-1 ring-indigo-300/35 shadow-sm'
+                      : 'bg-white text-slate-900 ring-1 ring-slate-300 shadow-md shadow-slate-300/50'
+                    : isDark
+                      ? 'text-slate-400 hover:text-slate-200'
+                      : 'text-slate-500 hover:text-slate-700',
                 ].join(' ')}
               >
                 {pickLocaleText(locale, '充值', 'Recharge')}
@@ -565,8 +599,12 @@ function PayContent() {
                 className={[
                   'rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200',
                   activeMobileTab === 'orders'
-                    ? isDark ? 'bg-indigo-500/30 text-indigo-100 ring-1 ring-indigo-300/35 shadow-sm' : 'bg-white text-slate-900 ring-1 ring-slate-300 shadow-md shadow-slate-300/50'
-                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700',
+                    ? isDark
+                      ? 'bg-indigo-500/30 text-indigo-100 ring-1 ring-indigo-300/35 shadow-sm'
+                      : 'bg-white text-slate-900 ring-1 ring-slate-300 shadow-md shadow-slate-300/50'
+                    : isDark
+                      ? 'text-slate-400 hover:text-slate-200'
+                      : 'text-slate-500 hover:text-slate-700',
                 ].join(' ')}
               >
                 {pickLocaleText(locale, '我的订单', 'My Orders')}
@@ -586,12 +624,20 @@ function PayContent() {
 
           {/* R7: 所有入口关闭提示 */}
           {allEntriesClosed && (activeMobileTab === 'pay' || !isMobile) && (
-            <div className={[
-              'rounded-2xl border p-8 text-center',
-              isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-white shadow-sm',
-            ].join(' ')}>
+            <div
+              className={[
+                'rounded-2xl border p-8 text-center',
+                isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-white shadow-sm',
+              ].join(' ')}
+            >
               <div className={['text-4xl mb-4'].join(' ')}>
-                <svg className={['mx-auto h-12 w-12', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <svg
+                  className={['mx-auto h-12 w-12', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                 </svg>
@@ -600,136 +646,194 @@ function PayContent() {
                 {pickLocaleText(locale, '充值/订阅 入口未开放', 'Recharge / Subscription entry is not available')}
               </p>
               <p className={['text-sm', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
-                {pickLocaleText(locale, '如有疑问，请联系管理员', 'Please contact the administrator if you have questions')}
+                {pickLocaleText(
+                  locale,
+                  '如有疑问，请联系管理员',
+                  'Please contact the administrator if you have questions',
+                )}
               </p>
             </div>
           )}
 
           {/* ── 有渠道配置：新版UI ── */}
-          {channelsLoaded && showMainTabs && (activeMobileTab === 'pay' || !isMobile) && !selectedPlan && !showTopUpForm && (
-            <>
-              <MainTabs activeTab={!canTopUp ? 'subscribe' : mainTab} onTabChange={setMainTab} showSubscribeTab={hasPlans} showTopUpTab={canTopUp} isDark={isDark} locale={locale} />
+          {channelsLoaded &&
+            showMainTabs &&
+            (activeMobileTab === 'pay' || !isMobile) &&
+            !selectedPlan &&
+            !showTopUpForm && (
+              <>
+                <MainTabs
+                  activeTab={!canTopUp ? 'subscribe' : mainTab}
+                  onTabChange={setMainTab}
+                  showSubscribeTab={hasPlans}
+                  showTopUpTab={canTopUp}
+                  isDark={isDark}
+                  locale={locale}
+                />
 
-              {mainTab === 'topup' && canTopUp && (
-                <div className="mt-6">
-                  {/* 按量付费说明 banner */}
-                  <div className={[
-                    'mb-6 rounded-2xl border p-6',
-                    isDark
-                      ? 'border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 to-purple-500/10'
-                      : 'border-emerald-500/20 bg-gradient-to-r from-emerald-50 to-purple-50',
-                  ].join(' ')}>
-                    <div className="flex items-start gap-4">
-                      <div className={[
-                        'flex-shrink-0 rounded-lg p-2',
-                        isDark ? 'bg-emerald-500/20' : 'bg-emerald-500/15',
-                      ].join(' ')}>
-                        <svg className="h-6 w-6 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className={['text-lg font-semibold mb-2', isDark ? 'text-emerald-400' : 'text-emerald-700'].join(' ')}>
-                          {pickLocaleText(locale, '按量付费模式', 'Pay-as-you-go')}
-                        </h3>
-                        <p className={['text-sm mb-4', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
-                          {pickLocaleText(
-                            locale,
-                            '无需订阅，充值即用，按实际消耗扣费。余额所有渠道通用，可自由切换。价格以美元计价（当前比例：1美元≈1人民币）',
-                            'No subscription needed. Top up and use. Charged by actual usage. Balance works across all channels. Priced in USD (current rate: 1 USD ≈ 1 CNY)',
-                          )}
-                        </p>
-                        <div className="flex flex-wrap gap-4 text-sm">
-                          <div className={['flex items-center gap-2', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
-                            <svg className="h-4 w-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                              <polyline points="17 6 23 6 23 12" />
-                            </svg>
-                            <span>{pickLocaleText(locale, '倍率越低越划算', 'Lower rate = better value')}</span>
-                          </div>
-                          <div className={['flex items-center gap-2', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
-                            <svg className="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg>
-                            <span>{pickLocaleText(locale, '0.15倍率 = 1元可用约6.67美元额度', '0.15 rate = 1 CNY ≈ $6.67 quota')}</span>
+                {mainTab === 'topup' && canTopUp && (
+                  <div className="mt-6">
+                    {/* 按量付费说明 banner */}
+                    <div
+                      className={[
+                        'mb-6 rounded-2xl border p-6',
+                        isDark
+                          ? 'border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 to-purple-500/10'
+                          : 'border-emerald-500/20 bg-gradient-to-r from-emerald-50 to-purple-50',
+                      ].join(' ')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={[
+                            'flex-shrink-0 rounded-lg p-2',
+                            isDark ? 'bg-emerald-500/20' : 'bg-emerald-500/15',
+                          ].join(' ')}
+                        >
+                          <svg
+                            className="h-6 w-6 text-emerald-500"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h3
+                            className={[
+                              'text-lg font-semibold mb-2',
+                              isDark ? 'text-emerald-400' : 'text-emerald-700',
+                            ].join(' ')}
+                          >
+                            {pickLocaleText(locale, '按量付费模式', 'Pay-as-you-go')}
+                          </h3>
+                          <p className={['text-sm mb-4', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
+                            {pickLocaleText(
+                              locale,
+                              '无需订阅，充值即用，按实际消耗扣费。余额所有渠道通用，可自由切换。价格以美元计价（当前比例：1美元≈1人民币）',
+                              'No subscription needed. Top up and use. Charged by actual usage. Balance works across all channels. Priced in USD (current rate: 1 USD ≈ 1 CNY)',
+                            )}
+                          </p>
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            <div
+                              className={['flex items-center gap-2', isDark ? 'text-slate-400' : 'text-slate-500'].join(
+                                ' ',
+                              )}
+                            >
+                              <svg
+                                className="h-4 w-4 text-green-500"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                <polyline points="17 6 23 6 23 12" />
+                              </svg>
+                              <span>{pickLocaleText(locale, '倍率越低越划算', 'Lower rate = better value')}</span>
+                            </div>
+                            <div
+                              className={['flex items-center gap-2', isDark ? 'text-slate-400' : 'text-slate-500'].join(
+                                ' ',
+                              )}
+                            >
+                              <svg
+                                className="h-4 w-4 text-blue-500"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                              </svg>
+                              <span>
+                                {pickLocaleText(
+                                  locale,
+                                  '0.15倍率 = 1元可用约6.67美元额度',
+                                  '0.15 rate = 1 CNY ≈ $6.67 quota',
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {hasChannels ? (
-                    <ChannelGrid
-                      channels={channels}
-                      onTopUp={() => setShowTopUpForm(true)}
-                      isDark={isDark}
-                      locale={locale}
-                      userBalance={userInfo?.balance}
-                    />
-                  ) : (
-                    <PaymentForm
-                      userId={resolvedUserId ?? 0}
-                      userName={userInfo?.username}
-                      userBalance={userInfo?.balance}
-                      enabledPaymentTypes={config.enabledPaymentTypes}
-                      methodLimits={config.methodLimits}
-                      minAmount={config.minAmount}
-                      maxAmount={config.maxAmount}
-                      onSubmit={handleSubmit}
-                      loading={loading}
-                      dark={isDark}
-                      pendingBlocked={pendingBlocked}
-                      pendingCount={pendingCount}
-                      locale={locale}
-                    />
-                  )}
-
-                  {renderHelpSection()}
-                </div>
-              )}
-
-              {mainTab === 'subscribe' && (
-                <div className="mt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {plans.map((plan) => (
-                      <SubscriptionPlanCard
-                        key={plan.id}
-                        plan={plan}
-                        onSubscribe={() => setSelectedPlan(plan)}
+                    {hasChannels ? (
+                      <ChannelGrid
+                        channels={channels}
+                        onTopUp={() => setShowTopUpForm(true)}
                         isDark={isDark}
                         locale={locale}
+                        userBalance={userInfo?.balance}
                       />
-                    ))}
+                    ) : (
+                      <PaymentForm
+                        userId={resolvedUserId ?? 0}
+                        userName={userInfo?.username}
+                        userBalance={userInfo?.balance}
+                        enabledPaymentTypes={config.enabledPaymentTypes}
+                        methodLimits={config.methodLimits}
+                        minAmount={config.minAmount}
+                        maxAmount={config.maxAmount}
+                        onSubmit={handleSubmit}
+                        loading={loading}
+                        dark={isDark}
+                        pendingBlocked={pendingBlocked}
+                        pendingCount={pendingCount}
+                        locale={locale}
+                      />
+                    )}
+
+                    {renderHelpSection()}
                   </div>
+                )}
 
-                  {renderHelpSection()}
-                </div>
-              )}
+                {mainTab === 'subscribe' && (
+                  <div className="mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {plans.map((plan) => (
+                        <SubscriptionPlanCard
+                          key={plan.id}
+                          plan={plan}
+                          onSubscribe={() => setSelectedPlan(plan)}
+                          isDark={isDark}
+                          locale={locale}
+                        />
+                      ))}
+                    </div>
 
-              {/* 用户已有订阅 — 所有 tab 共用 */}
-              {userSubscriptions.length > 0 && (
-                <div className="mt-8">
-                  <h3 className={['text-lg font-semibold mb-3', isDark ? 'text-slate-200' : 'text-slate-800'].join(' ')}>
-                    {pickLocaleText(locale, '我的订阅', 'My Subscriptions')}
-                  </h3>
-                  <UserSubscriptions
-                    subscriptions={userSubscriptions}
-                    onRenew={(groupId) => {
-                      const plan = plans.find((p) => p.groupId === groupId);
-                      if (plan) {
-                        setSelectedPlan(plan);
-                        setMainTab('subscribe');
-                      }
-                    }}
-                    isDark={isDark}
-                    locale={locale}
-                  />
-                </div>
-              )}
+                    {renderHelpSection()}
+                  </div>
+                )}
 
-              <PurchaseFlow isDark={isDark} locale={locale} />
-            </>
-          )}
+                {/* 用户已有订阅 — 所有 tab 共用 */}
+                {userSubscriptions.length > 0 && (
+                  <div className="mt-8">
+                    <h3
+                      className={['text-lg font-semibold mb-3', isDark ? 'text-slate-200' : 'text-slate-800'].join(' ')}
+                    >
+                      {pickLocaleText(locale, '我的订阅', 'My Subscriptions')}
+                    </h3>
+                    <UserSubscriptions
+                      subscriptions={userSubscriptions}
+                      onRenew={(groupId) => {
+                        const plan = plans.find((p) => p.groupId === groupId);
+                        if (plan) {
+                          setSelectedPlan(plan);
+                          setMainTab('subscribe');
+                        }
+                      }}
+                      isDark={isDark}
+                      locale={locale}
+                    />
+                  </div>
+                )}
+
+                <PurchaseFlow isDark={isDark} locale={locale} />
+              </>
+            )}
 
           {/* 点击"立即充值"后：直接显示 PaymentForm（含金额选择） */}
           {showTopUpForm && step === 'form' && (
@@ -834,29 +938,60 @@ function PayContent() {
                     />
                   </div>
                   <div className="space-y-4">
-                    <div className={['rounded-2xl border p-4', isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50'].join(' ')}>
+                    <div
+                      className={[
+                        'rounded-2xl border p-4',
+                        isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50',
+                      ].join(' ')}
+                    >
                       <div className={['text-xs', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
                         {pickLocaleText(locale, '支付说明', 'Payment Notes')}
                       </div>
-                      <ul className={['mt-2 space-y-1 text-sm', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}>
-                        <li>{pickLocaleText(locale, '订单完成后会自动到账', 'Balance will be credited automatically')}</li>
-                        <li>{pickLocaleText(locale, '如需历史记录请查看「我的订单」', 'Check "My Orders" for history')}</li>
+                      <ul
+                        className={['mt-2 space-y-1 text-sm', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}
+                      >
+                        <li>
+                          {pickLocaleText(locale, '订单完成后会自动到账', 'Balance will be credited automatically')}
+                        </li>
+                        <li>
+                          {pickLocaleText(locale, '如需历史记录请查看「我的订单」', 'Check "My Orders" for history')}
+                        </li>
                         {config.maxDailyAmount > 0 && (
-                          <li>{pickLocaleText(locale, '每日最大充值', 'Max daily recharge')} ¥{config.maxDailyAmount.toFixed(2)}</li>
+                          <li>
+                            {pickLocaleText(locale, '每日最大充值', 'Max daily recharge')} ¥
+                            {config.maxDailyAmount.toFixed(2)}
+                          </li>
                         )}
                       </ul>
                     </div>
                     {hasHelpContent && (
-                      <div className={['rounded-2xl border p-4', isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50'].join(' ')}>
+                      <div
+                        className={[
+                          'rounded-2xl border p-4',
+                          isDark ? 'border-slate-700 bg-slate-800/70' : 'border-slate-200 bg-slate-50',
+                        ].join(' ')}
+                      >
                         <div className={['text-xs', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
                           {pickLocaleText(locale, '帮助', 'Support')}
                         </div>
                         {helpImageUrl && (
-                          <img src={helpImageUrl} alt="help" onClick={() => setHelpImageOpen(true)} className={`mt-3 max-h-40 w-full cursor-zoom-in rounded-lg object-contain p-2 ${isDark ? 'bg-slate-700/50' : 'bg-white/70'}`} />
+                          <img
+                            src={helpImageUrl}
+                            alt="help"
+                            onClick={() => setHelpImageOpen(true)}
+                            className={`mt-3 max-h-40 w-full cursor-zoom-in rounded-lg object-contain p-2 ${isDark ? 'bg-slate-700/50' : 'bg-white/70'}`}
+                          />
                         )}
                         {helpText && (
-                          <div className={['mt-3 space-y-1 text-sm leading-6', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}>
-                            {helpText.split('\n').map((line, i) => (<p key={i}>{line}</p>))}
+                          <div
+                            className={[
+                              'mt-3 space-y-1 text-sm leading-6',
+                              isDark ? 'text-slate-300' : 'text-slate-600',
+                            ].join(' ')}
+                          >
+                            {helpText.split('\n').map((line, i) => (
+                              <p key={i}>{line}</p>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -924,8 +1059,16 @@ function PayContent() {
 
       {/* 帮助图片放大 */}
       {helpImageOpen && helpImageUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" onClick={() => setHelpImageOpen(false)}>
-          <img src={helpImageUrl} alt="help" className="max-h-[90vh] max-w-full rounded-xl object-contain shadow-2xl" onClick={(e) => e.stopPropagation()} />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={() => setHelpImageOpen(false)}
+        >
+          <img
+            src={helpImageUrl}
+            alt="help"
+            className="max-h-[90vh] max-w-full rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </PayPageLayout>
@@ -938,7 +1081,9 @@ function PayPageFallback() {
   const isDark = searchParams.get('theme') === 'dark';
   return (
     <div className={`flex min-h-screen items-center justify-center ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
-      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>{pickLocaleText(locale, '加载中...', 'Loading...')}</div>
+      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>
+        {pickLocaleText(locale, '加载中...', 'Loading...')}
+      </div>
     </div>
   );
 }

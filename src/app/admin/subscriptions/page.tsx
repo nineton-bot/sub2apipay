@@ -350,14 +350,15 @@ function SubscriptionsContent() {
   /* --- subs state --- */
   const [subsUserId, setSubsUserId] = useState('');
   const [subsKeyword, setSubsKeyword] = useState('');
-  const [searchResults, setSearchResults] = useState<{ id: number; email: string; username: string; notes?: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ id: number; email: string; username: string; notes?: string }[]>(
+    [],
+  );
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
   const [searchTimer, setSearchTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [subs, setSubs] = useState<Sub2ApiSubscription[]>([]);
   const [subsUser, setSubsUser] = useState<SubsUserInfo | null>(null);
   const [subsLoading, setSubsLoading] = useState(false);
   const [subsSearched, setSubsSearched] = useState(false);
-
 
   /* --- fetch plans --- */
   const fetchPlans = useCallback(async () => {
@@ -373,7 +374,7 @@ function SubscriptionsContent() {
         throw new Error(t.requestFailed);
       }
       const data = await res.json();
-      setPlans(Array.isArray(data) ? data : data.plans ?? []);
+      setPlans(Array.isArray(data) ? data : (data.plans ?? []));
     } catch {
       setError(t.loadFailed);
     } finally {
@@ -388,7 +389,7 @@ function SubscriptionsContent() {
       const res = await fetch(`/api/admin/sub2api/groups?token=${encodeURIComponent(token)}`);
       if (res.ok) {
         const data = await res.json();
-        setGroups(Array.isArray(data) ? data : data.groups ?? []);
+        setGroups(Array.isArray(data) ? data : (data.groups ?? []));
       }
     } catch {
       /* ignore */
@@ -467,9 +468,7 @@ function SubscriptionsContent() {
       product_name: formProductName.trim() || null,
     };
     try {
-      const url = editingPlan
-        ? `/api/admin/subscription-plans/${editingPlan.id}`
-        : '/api/admin/subscription-plans';
+      const url = editingPlan ? `/api/admin/subscription-plans/${editingPlan.id}` : '/api/admin/subscription-plans';
       const method = editingPlan ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,
@@ -729,12 +728,7 @@ function SubscriptionsContent() {
       )}
 
       {/* Tab switcher */}
-      <div
-        className={[
-          'mb-5 flex gap-1 rounded-xl p-1',
-          isDark ? 'bg-slate-800' : 'bg-slate-100',
-        ].join(' ')}
-      >
+      <div className={['mb-5 flex gap-1 rounded-xl p-1', isDark ? 'bg-slate-800' : 'bg-slate-100'].join(' ')}>
         <button type="button" className={tabCls(activeTab === 'plans')} onClick={() => setActiveTab('plans')}>
           {t.tabPlans}
         </button>
@@ -781,15 +775,23 @@ function SubscriptionsContent() {
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <h3 className={['text-base font-semibold', isDark ? 'text-slate-100' : 'text-slate-900'].join(' ')}>
+                        <h3
+                          className={['text-base font-semibold', isDark ? 'text-slate-100' : 'text-slate-900'].join(
+                            ' ',
+                          )}
+                        >
                           {plan.name}
                         </h3>
                         <span
                           className={[
                             'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
                             plan.groupExists
-                              ? isDark ? 'bg-green-500/20 text-green-300' : 'bg-green-50 text-green-700'
-                              : isDark ? 'bg-red-500/20 text-red-300' : 'bg-red-50 text-red-600',
+                              ? isDark
+                                ? 'bg-green-500/20 text-green-300'
+                                : 'bg-green-50 text-green-700'
+                              : isDark
+                                ? 'bg-red-500/20 text-red-300'
+                                : 'bg-red-50 text-red-600',
                           ].join(' ')}
                         >
                           {plan.groupExists ? t.groupExists : t.groupMissing}
@@ -844,31 +846,50 @@ function SubscriptionsContent() {
                     {/* Plan fields grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 text-sm">
                       <div>
-                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{t.colGroup}</span>
+                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>
+                          {t.colGroup}
+                        </span>
                         <div className={isDark ? 'text-slate-200' : 'text-slate-800'}>
                           <span className="font-mono text-xs">{plan.groupId}</span>
-                          {plan.groupName && <span className={`ml-1 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>({plan.groupName})</span>}
+                          {plan.groupName && (
+                            <span className={`ml-1 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              ({plan.groupName})
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div>
-                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{t.colPrice}</span>
+                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>
+                          {t.colPrice}
+                        </span>
                         <div className={isDark ? 'text-slate-200' : 'text-slate-800'}>
                           ¥{plan.price.toFixed(2)}
                           {plan.originalPrice != null && (
-                            <span className={`ml-1 line-through text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                            <span
+                              className={`ml-1 line-through text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
+                            >
                               ¥{plan.originalPrice.toFixed(2)}
                             </span>
                           )}
                         </div>
                       </div>
                       <div>
-                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{t.colValidDays}</span>
+                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>
+                          {t.colValidDays}
+                        </span>
                         <div className={isDark ? 'text-slate-200' : 'text-slate-800'}>
-                          {plan.validDays} {plan.validityUnit === 'month' ? t.unitMonth : plan.validityUnit === 'week' ? t.unitWeek : t.unitDay}
+                          {plan.validDays}{' '}
+                          {plan.validityUnit === 'month'
+                            ? t.unitMonth
+                            : plan.validityUnit === 'week'
+                              ? t.unitWeek
+                              : t.unitDay}
                         </div>
                       </div>
                       <div>
-                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>{t.fieldSortOrder}</span>
+                        <span className={['text-xs', isDark ? 'text-slate-500' : 'text-slate-400'].join(' ')}>
+                          {t.fieldSortOrder}
+                        </span>
                         <div className={isDark ? 'text-slate-200' : 'text-slate-800'}>{plan.sortOrder}</div>
                       </div>
                     </div>
@@ -876,9 +897,16 @@ function SubscriptionsContent() {
 
                   {/* ── Sub2API 分组信息（嵌套只读区域） ── */}
                   {plan.groupExists && (
-                    <div className={['border-t px-4 py-3', isDark ? 'border-slate-700 bg-slate-900/40' : 'border-slate-100 bg-slate-50/80'].join(' ')}>
+                    <div
+                      className={[
+                        'border-t px-4 py-3',
+                        isDark ? 'border-slate-700 bg-slate-900/40' : 'border-slate-100 bg-slate-50/80',
+                      ].join(' ')}
+                    >
                       <div className="flex items-center gap-2 mb-2">
-                        <span className={['text-xs font-medium', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
+                        <span
+                          className={['text-xs font-medium', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}
+                        >
                           {t.groupInfo}
                         </span>
                         <span className={['text-[10px]', isDark ? 'text-slate-600' : 'text-slate-400'].join(' ')}>
@@ -889,13 +917,17 @@ function SubscriptionsContent() {
                         {plan.groupPlatform && (
                           <div>
                             <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>{t.platform}</span>
-                            <div className="mt-0.5"><PlatformBadge platform={plan.groupPlatform} /></div>
+                            <div className="mt-0.5">
+                              <PlatformBadge platform={plan.groupPlatform} />
+                            </div>
                           </div>
                         )}
                         {plan.groupRateMultiplier != null && (
                           <div>
                             <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>{t.rateMultiplier}</span>
-                            <div className={isDark ? 'text-slate-300' : 'text-slate-600'}>{plan.groupRateMultiplier}x</div>
+                            <div className={isDark ? 'text-slate-300' : 'text-slate-600'}>
+                              {plan.groupRateMultiplier}x
+                            </div>
                           </div>
                         )}
                         <div>
@@ -920,14 +952,30 @@ function SubscriptionsContent() {
                           <>
                             <div>
                               <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>/v1/messages 调度</span>
-                              <div className={['mt-0.5 text-xs font-medium', plan.groupAllowMessagesDispatch ? (isDark ? 'text-green-400' : 'text-green-600') : isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
+                              <div
+                                className={[
+                                  'mt-0.5 text-xs font-medium',
+                                  plan.groupAllowMessagesDispatch
+                                    ? isDark
+                                      ? 'text-green-400'
+                                      : 'text-green-600'
+                                    : isDark
+                                      ? 'text-slate-400'
+                                      : 'text-slate-500',
+                                ].join(' ')}
+                              >
                                 {plan.groupAllowMessagesDispatch ? '已启用' : '未启用'}
                               </div>
                             </div>
                             {plan.groupDefaultMappedModel && (
                               <div className="sm:col-span-2">
                                 <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>默认模型</span>
-                                <div className={['mt-0.5 font-mono text-xs', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}>
+                                <div
+                                  className={[
+                                    'mt-0.5 font-mono text-xs',
+                                    isDark ? 'text-slate-300' : 'text-slate-600',
+                                  ].join(' ')}
+                                >
                                   {plan.groupDefaultMappedModel}
                                 </div>
                               </div>
@@ -960,7 +1008,9 @@ function SubscriptionsContent() {
                     fetchSubs();
                   }
                 }}
-                onFocus={() => { if (searchResults.length > 0) setSearchDropdownOpen(true); }}
+                onFocus={() => {
+                  if (searchResults.length > 0) setSearchDropdownOpen(true);
+                }}
                 placeholder={t.searchUserId}
                 className={inputCls}
               />
@@ -994,7 +1044,10 @@ function SubscriptionsContent() {
             </div>
             <button
               type="button"
-              onClick={() => { setSearchDropdownOpen(false); fetchSubs(); }}
+              onClick={() => {
+                setSearchDropdownOpen(false);
+                fetchSubs();
+              }}
               disabled={subsLoading}
               className={[
                 'inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50',
@@ -1029,9 +1082,7 @@ function SubscriptionsContent() {
                 </div>
                 <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{subsUser.email}</div>
               </div>
-              <div className={`ml-auto text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                ID: {subsUser.id}
-              </div>
+              <div className={`ml-auto text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>ID: {subsUser.id}</div>
             </div>
           )}
 
@@ -1040,9 +1091,7 @@ function SubscriptionsContent() {
             {subsLoading ? (
               <div className={`py-12 text-center ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{t.loading}</div>
             ) : !subsSearched ? (
-              <div className={`py-12 text-center ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-                {t.loading}
-              </div>
+              <div className={`py-12 text-center ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{t.loading}</div>
             ) : subs.length === 0 ? (
               <div className={`py-12 text-center ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{t.noSubs}</div>
             ) : (
@@ -1134,13 +1183,10 @@ function SubscriptionsContent() {
                                       : 'text-slate-500'
                               }`}
                             >
-                              {remaining > 0
-                                ? `${remaining} ${t.days} ${t.remaining}`
-                                : t.expired}
+                              {remaining > 0 ? `${remaining} ${t.days} ${t.remaining}` : t.expired}
                             </div>
                           )}
                         </td>
-
                       </tr>
                     );
                   })}
@@ -1160,12 +1206,7 @@ function SubscriptionsContent() {
               isDark ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white',
             ].join(' ')}
           >
-            <h2
-              className={[
-                'mb-5 text-lg font-semibold',
-                isDark ? 'text-slate-100' : 'text-slate-900',
-              ].join(' ')}
-            >
+            <h2 className={['mb-5 text-lg font-semibold', isDark ? 'text-slate-100' : 'text-slate-900'].join(' ')}>
               {editingPlan ? t.editPlan : t.newPlan}
             </h2>
 
@@ -1173,11 +1214,7 @@ function SubscriptionsContent() {
               {/* Group */}
               <div>
                 <label className={labelCls}>{t.fieldGroup}</label>
-                <select
-                  value={formGroupId}
-                  onChange={(e) => setFormGroupId(e.target.value)}
-                  className={inputCls}
-                >
+                <select value={formGroupId} onChange={(e) => setFormGroupId(e.target.value)} className={inputCls}>
                   <option value="">{t.fieldGroupPlaceholder}</option>
                   {availableGroups.map((g) => (
                     <option key={g.id} value={g.id}>
@@ -1198,7 +1235,12 @@ function SubscriptionsContent() {
                 const selectedGroup = groups.find((g) => String(g.id) === formGroupId);
                 if (!selectedGroup) return null;
                 return (
-                  <div className={['rounded-lg border p-3 text-xs', isDark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50'].join(' ')}>
+                  <div
+                    className={[
+                      'rounded-lg border p-3 text-xs',
+                      isDark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50',
+                    ].join(' ')}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <span className={['font-medium', isDark ? 'text-slate-300' : 'text-slate-600'].join(' ')}>
                         {t.groupInfo}
@@ -1211,13 +1253,17 @@ function SubscriptionsContent() {
                       {selectedGroup.platform && (
                         <div>
                           <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>{t.platform}</span>
-                          <div className="mt-0.5"><PlatformBadge platform={selectedGroup.platform} /></div>
+                          <div className="mt-0.5">
+                            <PlatformBadge platform={selectedGroup.platform} />
+                          </div>
                         </div>
                       )}
                       {selectedGroup.rate_multiplier != null && (
                         <div>
                           <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>{t.rateMultiplier}</span>
-                          <div className={isDark ? 'text-slate-300' : 'text-slate-600'}>{selectedGroup.rate_multiplier}x</div>
+                          <div className={isDark ? 'text-slate-300' : 'text-slate-600'}>
+                            {selectedGroup.rate_multiplier}x
+                          </div>
                         </div>
                       )}
                       <div>
@@ -1235,13 +1281,26 @@ function SubscriptionsContent() {
                       <div>
                         <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>{t.monthlyLimit}</span>
                         <div className={isDark ? 'text-slate-300' : 'text-slate-600'}>
-                          {selectedGroup.monthly_limit_usd != null ? `$${selectedGroup.monthly_limit_usd}` : t.unlimited}
+                          {selectedGroup.monthly_limit_usd != null
+                            ? `$${selectedGroup.monthly_limit_usd}`
+                            : t.unlimited}
                         </div>
                       </div>
                       {selectedGroup.platform?.toLowerCase() === 'openai' && (
                         <div>
                           <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>/v1/messages 调度</span>
-                          <div className={['mt-0.5 font-medium', selectedGroup.allow_messages_dispatch ? (isDark ? 'text-green-400' : 'text-green-600') : isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
+                          <div
+                            className={[
+                              'mt-0.5 font-medium',
+                              selectedGroup.allow_messages_dispatch
+                                ? isDark
+                                  ? 'text-green-400'
+                                  : 'text-green-600'
+                                : isDark
+                                  ? 'text-slate-400'
+                                  : 'text-slate-500',
+                            ].join(' ')}
+                          >
                             {selectedGroup.allow_messages_dispatch ? '已启用' : '未启用'}
                           </div>
                         </div>

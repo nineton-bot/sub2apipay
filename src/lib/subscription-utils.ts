@@ -23,11 +23,7 @@ export function computeValidityDays(value: number, unit: ValidityUnit, fromDate?
  * - unit=week, value=2 → 2周 / 2 Weeks
  * - unit=day, value=30 → 30天 / 30 Days
  */
-export function formatValidityLabel(
-  value: number,
-  unit: ValidityUnit,
-  locale: 'zh' | 'en',
-): string {
+export function formatValidityLabel(value: number, unit: ValidityUnit, locale: 'zh' | 'en'): string {
   const unitLabels: Record<ValidityUnit, { zh: string; en: string; enPlural: string }> = {
     day: { zh: '天', en: 'Day', enPlural: 'Days' },
     week: { zh: '周', en: 'Week', enPlural: 'Weeks' },
@@ -44,11 +40,7 @@ export function formatValidityLabel(
  * - unit=week, value=2 → /2周 / /2wk
  * - unit=day, value=30 → /30天 / /30d
  */
-export function formatValiditySuffix(
-  value: number,
-  unit: ValidityUnit,
-  locale: 'zh' | 'en',
-): string {
+export function formatValiditySuffix(value: number, unit: ValidityUnit, locale: 'zh' | 'en'): string {
   const unitLabels: Record<ValidityUnit, { zh: string; en: string }> = {
     day: { zh: '天', en: 'd' },
     week: { zh: '周', en: 'wk' },
@@ -65,11 +57,7 @@ export function formatValiditySuffix(
  * - unit=week → "2 周"
  * - unit=month → "1 月"
  */
-export function formatValidityDisplay(
-  value: number,
-  unit: ValidityUnit,
-  locale: 'zh' | 'en',
-): string {
+export function formatValidityDisplay(value: number, unit: ValidityUnit, locale: 'zh' | 'en'): string {
   const unitLabels: Record<ValidityUnit, { zh: string; en: string }> = {
     day: { zh: '天', en: 'day(s)' },
     week: { zh: '周', en: 'week(s)' },

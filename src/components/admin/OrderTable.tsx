@@ -133,7 +133,9 @@ export default function OrderTable({ orders, onRetry, onCancel, onViewDetail, da
                 </td>
                 <td className={tdMuted}>{order.userEmail || '-'}</td>
                 <td className={tdMuted}>{order.userNotes || '-'}</td>
-                <td className={`whitespace-nowrap px-4 py-3 text-sm font-medium ${dark ? 'text-slate-200' : 'text-slate-900'}`}>
+                <td
+                  className={`whitespace-nowrap px-4 py-3 text-sm font-medium ${dark ? 'text-slate-200' : 'text-slate-900'}`}
+                >
                   {currency}
                   {order.amount.toFixed(2)}
                 </td>

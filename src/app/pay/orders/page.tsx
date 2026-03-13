@@ -242,7 +242,9 @@ function OrdersPageFallback() {
 
   return (
     <div className={`flex min-h-screen items-center justify-center ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
-      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>{pickLocaleText(locale, '加载中...', 'Loading...')}</div>
+      <div className={isDark ? 'text-slate-400' : 'text-gray-500'}>
+        {pickLocaleText(locale, '加载中...', 'Loading...')}
+      </div>
     </div>
   );
 }

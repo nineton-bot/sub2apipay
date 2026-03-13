@@ -3,6 +3,7 @@
 ## 一、概述
 
 基于 Pincc 参考界面，改造 Sub2ApiPay 项目，新增：
+
 - **用户页面**：双 Tab（按量付费 / 包月套餐），渠道卡片展示，充值弹窗，订阅购买流程
 - **管理员界面**：渠道管理、订阅套餐管理、系统配置
 - **数据库存储配置**：支付渠道等配置从环境变量迁移至数据库，支持运行时修改
@@ -90,6 +91,7 @@ model Order {
 ```
 
 **设计理由**：订阅订单和余额充值订单共享同一套支付流程（创建→支付→回调→履约），仅在最终「履约」步骤不同：
+
 - `balance`：调用 `createAndRedeem()` 充值余额
 - `subscription`：调用 Sub2API `POST /admin/subscriptions/assign` 分配订阅
 
@@ -101,54 +103,60 @@ model Order {
 
 ```typescript
 // 获取所有分组（管理员）
-async function getAllGroups(): Promise<Sub2ApiGroup[]>
+async function getAllGroups(): Promise<Sub2ApiGroup[]>;
 // GET /api/v1/admin/groups/all
 
 // 获取单个分组
-async function getGroup(groupId: number): Promise<Sub2ApiGroup | null>
+async function getGroup(groupId: number): Promise<Sub2ApiGroup | null>;
 // GET /api/v1/admin/groups/:id
 
 // 分配订阅（支付成功后调用）
-async function assignSubscription(userId: number, groupId: number, validityDays: number, notes?: string): Promise<Sub2ApiSubscription>
+async function assignSubscription(
+  userId: number,
+  groupId: number,
+  validityDays: number,
+  notes?: string,
+): Promise<Sub2ApiSubscription>;
 // POST /api/v1/admin/subscriptions/assign
 
 // 获取用户的订阅列表
-async function getUserSubscriptions(userId: number): Promise<Sub2ApiSubscription[]>
+async function getUserSubscriptions(userId: number): Promise<Sub2ApiSubscription[]>;
 // GET /api/v1/admin/users/:id/subscriptions
 
 // 延长订阅（续费）
-async function extendSubscription(subscriptionId: number, days: number): Promise<void>
+async function extendSubscription(subscriptionId: number, days: number): Promise<void>;
 // POST /api/v1/admin/subscriptions/:id/extend
 ```
 
 类型定义：
+
 ```typescript
 interface Sub2ApiGroup {
-  id: number
-  name: string
-  description: string
-  platform: string
-  status: string
-  rate_multiplier: number
-  subscription_type: string
-  daily_limit_usd: number | null
-  weekly_limit_usd: number | null
-  monthly_limit_usd: number | null
-  default_validity_days: number
-  sort_order: number
+  id: number;
+  name: string;
+  description: string;
+  platform: string;
+  status: string;
+  rate_multiplier: number;
+  subscription_type: string;
+  daily_limit_usd: number | null;
+  weekly_limit_usd: number | null;
+  monthly_limit_usd: number | null;
+  default_validity_days: number;
+  sort_order: number;
 }
 
 interface Sub2ApiSubscription {
-  id: number
-  user_id: number
-  group_id: number
-  starts_at: string
-  expires_at: string
-  status: string
-  daily_usage_usd: number
-  weekly_usage_usd: number
-  monthly_usage_usd: number
-  notes: string | null
+  id: number;
+  user_id: number;
+  group_id: number;
+  starts_at: string;
+  expires_at: string;
+  status: string;
+  daily_usage_usd: number;
+  weekly_usage_usd: number;
+  monthly_usage_usd: number;
+  notes: string | null;
 }
 ```
 
@@ -158,29 +166,29 @@ interface Sub2ApiSubscription {
 
 ### 4.1 用户 API
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/channels` | 获取已启用的渠道列表（用户token验证 + 校验Sub2API分组是否存在） |
-| GET | `/api/subscription-plans` | 获取可售卖的订阅套餐列表（同上校验） |
-| POST | `/api/orders` | **扩展**：支持 `order_type: "subscription"` + `plan_id` |
-| GET | `/api/subscriptions/my` | 获取当前用户的活跃订阅列表 |
+| 方法 | 路径                      | 说明                                                            |
+| ---- | ------------------------- | --------------------------------------------------------------- |
+| GET  | `/api/channels`           | 获取已启用的渠道列表（用户token验证 + 校验Sub2API分组是否存在） |
+| GET  | `/api/subscription-plans` | 获取可售卖的订阅套餐列表（同上校验）                            |
+| POST | `/api/orders`             | **扩展**：支持 `order_type: "subscription"` + `plan_id`         |
+| GET  | `/api/subscriptions/my`   | 获取当前用户的活跃订阅列表                                      |
 
 ### 4.2 管理员 API
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/admin/channels` | 渠道列表（含Sub2API分组同步状态） |
-| POST | `/api/admin/channels` | 创建/更新渠道 |
-| PUT | `/api/admin/channels/[id]` | 更新渠道 |
-| DELETE | `/api/admin/channels/[id]` | 删除渠道 |
-| GET | `/api/admin/sub2api/groups` | 从Sub2API拉取所有分组（供选择） |
-| GET | `/api/admin/subscription-plans` | 订阅套餐列表 |
-| POST | `/api/admin/subscription-plans` | 创建套餐 |
-| PUT | `/api/admin/subscription-plans/[id]` | 更新套餐 |
-| DELETE | `/api/admin/subscription-plans/[id]` | 删除套餐 |
-| GET | `/api/admin/subscriptions` | 所有用户的订阅列表 |
-| GET | `/api/admin/config` | 获取系统配置 |
-| PUT | `/api/admin/config` | 批量更新系统配置 |
+| 方法   | 路径                                 | 说明                              |
+| ------ | ------------------------------------ | --------------------------------- |
+| GET    | `/api/admin/channels`                | 渠道列表（含Sub2API分组同步状态） |
+| POST   | `/api/admin/channels`                | 创建/更新渠道                     |
+| PUT    | `/api/admin/channels/[id]`           | 更新渠道                          |
+| DELETE | `/api/admin/channels/[id]`           | 删除渠道                          |
+| GET    | `/api/admin/sub2api/groups`          | 从Sub2API拉取所有分组（供选择）   |
+| GET    | `/api/admin/subscription-plans`      | 订阅套餐列表                      |
+| POST   | `/api/admin/subscription-plans`      | 创建套餐                          |
+| PUT    | `/api/admin/subscription-plans/[id]` | 更新套餐                          |
+| DELETE | `/api/admin/subscription-plans/[id]` | 删除套餐                          |
+| GET    | `/api/admin/subscriptions`           | 所有用户的订阅列表                |
+| GET    | `/api/admin/config`                  | 获取系统配置                      |
+| PUT    | `/api/admin/config`                  | 批量更新系统配置                  |
 
 ---
 
@@ -191,12 +199,13 @@ interface Sub2ApiSubscription {
 ```typescript
 interface CreateOrderInput {
   // 现有字段...
-  orderType?: 'balance' | 'subscription'  // 新增
-  planId?: string                          // 新增（订阅时必填）
+  orderType?: 'balance' | 'subscription'; // 新增
+  planId?: string; // 新增（订阅时必填）
 }
 ```
 
 订阅订单创建时的校验逻辑：
+
 1. 验证 `planId` 对应的 SubscriptionPlan 存在且 `forSale=true`
 2. 调用 Sub2API 验证 `groupId` 对应的分组仍然存在且 status=active
 3. 金额使用 plan.price（不允许用户自定义）
@@ -259,22 +268,23 @@ if (order.orderType === 'subscription') {
 ```
 
 **条件逻辑**：
+
 - 如果管理员 **没有配置渠道**（Channel 表为空）→ 直接显示现有的充值界面（PaymentForm），不显示卡片
 - 如果管理员 **配置了渠道** → 显示渠道卡片网格，点击"立即充值"弹出金额选择弹窗
 - 如果管理员 **没有配置订阅套餐**（SubscriptionPlan 无 forSale=true）→ 隐藏"包月套餐" Tab
 
 ### 6.2 新增组件
 
-| 组件 | 说明 |
-|------|------|
-| `ChannelCard.tsx` | 渠道卡片（平台标签、倍率、模型标签等） |
-| `ChannelGrid.tsx` | 渠道卡片网格容器 |
-| `TopUpModal.tsx` | 充值金额选择弹窗 |
-| `SubscriptionPlanCard.tsx` | 订阅套餐卡片 |
-| `SubscriptionConfirm.tsx` | 订阅确认订单页 |
-| `UserSubscriptions.tsx` | 用户已有订阅展示 |
-| `MainTabs.tsx` | 按量付费/包月套餐 Tab 切换 |
-| `PurchaseFlow.tsx` | 购买流程说明（4步骤图标） |
+| 组件                       | 说明                                   |
+| -------------------------- | -------------------------------------- |
+| `ChannelCard.tsx`          | 渠道卡片（平台标签、倍率、模型标签等） |
+| `ChannelGrid.tsx`          | 渠道卡片网格容器                       |
+| `TopUpModal.tsx`           | 充值金额选择弹窗                       |
+| `SubscriptionPlanCard.tsx` | 订阅套餐卡片                           |
+| `SubscriptionConfirm.tsx`  | 订阅确认订单页                         |
+| `UserSubscriptions.tsx`    | 用户已有订阅展示                       |
+| `MainTabs.tsx`             | 按量付费/包月套餐 Tab 切换             |
+| `PurchaseFlow.tsx`         | 购买流程说明（4步骤图标）              |
 
 ### 6.3 异常处理
 
@@ -289,11 +299,11 @@ if (order.orderType === 'subscription') {
 
 ### 7.1 页面路由
 
-| 路由 | 说明 |
-|------|------|
-| `/admin/channels` | 渠道管理（列表 + 编辑弹窗，参考 channel-conf.png） |
-| `/admin/subscriptions` | 订阅套餐管理 + 已有订阅列表 |
-| `/admin/settings` | 系统配置（支付渠道配置、业务参数等） |
+| 路由                   | 说明                                               |
+| ---------------------- | -------------------------------------------------- |
+| `/admin/channels`      | 渠道管理（列表 + 编辑弹窗，参考 channel-conf.png） |
+| `/admin/subscriptions` | 订阅套餐管理 + 已有订阅列表                        |
+| `/admin/settings`      | 系统配置（支付渠道配置、业务参数等）               |
 
 ### 7.2 渠道管理页（/admin/channels）
 
@@ -309,6 +319,7 @@ if (order.orderType === 'subscription') {
 ### 7.3 订阅套餐管理页（/admin/subscriptions）
 
 两个区域：
+
 1. **套餐配置**：
    - 列表：套餐名 | 关联分组 | 价格 | 有效天数 | 启用售卖 | Sub2API状态 | 操作
    - 新建/编辑表单：选择 Sub2API 分组 → 配置名称、价格、原价、有效天数、特性描述、启用售卖
@@ -320,10 +331,11 @@ if (order.orderType === 'subscription') {
 ### 7.4 系统配置页（/admin/settings）
 
 分组展示：
+
 - **支付渠道配置**：PAYMENT_PROVIDERS、各支付商的 Key/密钥等（敏感字段脱敏显示）
 - **业务参数**：ORDER_TIMEOUT_MINUTES、MIN/MAX_RECHARGE_AMOUNT、MAX_DAILY_RECHARGE_AMOUNT 等
 - **充值档位配置**：自定义充值金额选项（如 50/100/500/1000）
-- **显示配置**：PAY_HELP_IMAGE_URL、PAY_HELP_TEXT、PAYMENT_SUBLABEL_* 等
+- **显示配置**：PAY*HELP_IMAGE_URL、PAY_HELP_TEXT、PAYMENT_SUBLABEL*\* 等
 - **前端定制**：站点名称、联系客服信息等
 
 配置优先级：**数据库配置 > 环境变量**（环境变量作为默认值/回退值）
@@ -360,10 +372,12 @@ async function getConfigs(keys: string[]): Promise<Record<string, string>> { ...
 ## 九、管理员入口
 
 管理员通过以下方式进入：
+
 1. Sub2API 管理面板中跳转（携带 admin token）
 2. 直接访问 `/admin?token=xxx`（现有机制）
 
 管理员页面新增导航侧边栏：
+
 - 订单管理（现有）
 - 数据概览（现有）
 - **渠道管理**（新增）
@@ -375,27 +389,32 @@ async function getConfigs(keys: string[]): Promise<Record<string, string>> { ...
 ## 十、实施顺序
 
 ### Phase 1：数据库 & 基础设施（预估 2-3 步）
+
 1. Prisma schema 变更 + migration
 2. SystemConfig 服务层（CRUD + 缓存）
 3. Sub2API client 扩展（分组/订阅 API）
 
 ### Phase 2：管理员 API & 页面（预估 4-5 步）
+
 4. 渠道管理 API + 页面
 5. 订阅套餐管理 API + 页面
 6. 系统配置 API + 页面
 7. 管理员导航侧边栏
 
 ### Phase 3：订单服务改造（预估 2 步）
+
 8. Order 模型扩展 + 订阅订单创建逻辑
 9. 订阅履约逻辑（executeSubscriptionFulfillment）
 
 ### Phase 4：用户页面改造（预估 3-4 步）
+
 10. 用户 API（channels、subscription-plans、subscriptions/my）
 11. 按量付费 Tab（ChannelGrid + TopUpModal）
 12. 包月套餐 Tab（SubscriptionPlanCard + SubscriptionConfirm）
 13. 用户订阅展示 + 续费 + 异常处理
 
 ### Phase 5：配置迁移 & 收尾（预估 1-2 步）
+
 14. getEnv() 改造（数据库优先 + 环境变量回退）
 15. 测试 + 端到端验证
 

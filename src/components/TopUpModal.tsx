@@ -37,15 +37,15 @@ export default function TopUpModal({ open, onClose, onConfirm, amounts, isDark, 
       >
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            {pickLocaleText(locale, '选择充值金额', 'Select Amount')}
-          </h2>
+          <h2 className="text-lg font-semibold">{pickLocaleText(locale, '选择充值金额', 'Select Amount')}</h2>
           <button
             type="button"
             onClick={onClose}
             className={[
               'flex h-8 w-8 items-center justify-center rounded-full transition-colors',
-              isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600',
+              isDark
+                ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600',
             ].join(' ')}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -82,9 +82,7 @@ export default function TopUpModal({ open, onClose, onConfirm, amounts, isDark, 
                 <span className={['text-xs', isDark ? 'text-slate-400' : 'text-slate-500'].join(' ')}>
                   {pickLocaleText(locale, `余额充值${amount}$`, `Balance +${amount}$`)}
                 </span>
-                <span className="mt-1 text-2xl font-bold text-emerald-500">
-                  ¥{amount}
-                </span>
+                <span className="mt-1 text-2xl font-bold text-emerald-500">¥{amount}</span>
               </button>
             );
           })}

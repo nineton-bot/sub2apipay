@@ -65,7 +65,19 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { group_id, name, description, price, original_price, validity_days, validity_unit, features, for_sale, sort_order, product_name } = body;
+    const {
+      group_id,
+      name,
+      description,
+      price,
+      original_price,
+      validity_days,
+      validity_unit,
+      features,
+      for_sale,
+      sort_order,
+      product_name,
+    } = body;
 
     if (!group_id || !name || price === undefined) {
       return NextResponse.json({ error: '缺少必填字段: group_id, name, price' }, { status: 400 });
@@ -74,7 +86,11 @@ export async function POST(request: NextRequest) {
     if (typeof price !== 'number' || price <= 0 || price > 99999999.99) {
       return NextResponse.json({ error: 'price 必须是 0.01 ~ 99999999.99 之间的数值' }, { status: 400 });
     }
-    if (original_price !== undefined && original_price !== null && (typeof original_price !== 'number' || original_price <= 0 || original_price > 99999999.99)) {
+    if (
+      original_price !== undefined &&
+      original_price !== null &&
+      (typeof original_price !== 'number' || original_price <= 0 || original_price > 99999999.99)
+    ) {
       return NextResponse.json({ error: 'original_price 必须是 0.01 ~ 99999999.99 之间的数值' }, { status: 400 });
     }
     if (validity_days !== undefined && (!Number.isInteger(validity_days) || validity_days <= 0)) {
@@ -90,10 +106,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: `分组 ID ${group_id} 已被套餐「${existing.name}」使用` },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: `分组 ID ${group_id} 已被套餐「${existing.name}」使用` }, { status: 409 });
     }
 
     const plan = await prisma.subscriptionPlan.create({

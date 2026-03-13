@@ -13,7 +13,14 @@ interface MainTabsProps {
   locale: Locale;
 }
 
-export default function MainTabs({ activeTab, onTabChange, showSubscribeTab, showTopUpTab = true, isDark, locale }: MainTabsProps) {
+export default function MainTabs({
+  activeTab,
+  onTabChange,
+  showSubscribeTab,
+  showTopUpTab = true,
+  isDark,
+  locale,
+}: MainTabsProps) {
   if (!showSubscribeTab) return null;
 
   const tabs: { key: 'topup' | 'subscribe'; label: string }[] = [];
@@ -26,12 +33,7 @@ export default function MainTabs({ activeTab, onTabChange, showSubscribeTab, sho
   if (tabs.length <= 1) return null;
 
   return (
-    <div
-      className={[
-        'inline-flex rounded-xl p-1',
-        isDark ? 'bg-slate-900' : 'bg-slate-100',
-      ].join(' ')}
-    >
+    <div className={['inline-flex rounded-xl p-1', isDark ? 'bg-slate-900' : 'bg-slate-100'].join(' ')}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
         return (
