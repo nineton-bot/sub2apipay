@@ -33,6 +33,15 @@ Sub2ApiPay is a self-hosted payment gateway built for the [Sub2API](https://sub2
 - **Bilingual** — Automatic Chinese/English interface adaptation
 - **Admin Panel** — Dashboard, order management (pagination/filtering/retry/refund), channel & subscription management
 
+> **EasyPay Recommendation**: We personally recommend [ZPay](https://z-pay.cn/?uid=23808) as an EasyPay provider (referral link — feel free to remove). ZPay supports **individual users** (no business license) with a daily limit of ¥10,000; business license holders have no limit. Always choose providers where funds go through official Alipay/WeChat Pay channels rather than third-party collection.
+
+<details>
+<summary>ZPay Registration QR Code</summary>
+
+![ZPay Preview](./docs/zpay-preview.png)
+
+</details>
+
 ---
 
 ## Tech Stack
@@ -113,18 +122,9 @@ PAYMENT_PROVIDERS=alipay,wxpay,stripe
 
 #### EasyPay (Alipay / WeChat Pay Aggregation)
 
-Any payment provider compatible with the **EasyPay protocol** can be used, such as [ZPay](https://z-pay.cn/?uid=23808) (`https://z-pay.cn/?uid=23808`) (this link contains the author's referral code — feel free to remove it). ZPay supports **individual users** (no business license required) with a daily transaction limit of ¥10,000; users with a business license have no transaction limits.
-
-<details>
-<summary>ZPay Registration QR Code</summary>
-
-![ZPay Preview](./docs/zpay-preview.png)
-
-</details>
+Any payment provider compatible with the **EasyPay protocol** can be used.
 
 > **Disclaimer**: Please evaluate the security, reliability, and compliance of any third-party payment provider on your own. This project does not endorse or guarantee any specific provider.
->
-> **⚠️ Security Warning**: When using third-party platforms, always choose providers where **funds are routed through official Alipay/WeChat Pay channels rather than third-party collection**, to avoid the risk of fund misappropriation.
 
 | Variable              | Description                                                      |
 | --------------------- | ---------------------------------------------------------------- |
