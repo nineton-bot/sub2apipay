@@ -7,9 +7,9 @@ const { mockGetEnv } = vi.hoisted(() => ({
     EASY_PAY_API_BASE: 'https://pay.example.com',
     EASY_PAY_NOTIFY_URL: 'https://pay.example.com/api/easy-pay/notify',
     EASY_PAY_RETURN_URL: 'https://pay.example.com/pay/result',
-    EASY_PAY_CID: undefined,
-    EASY_PAY_CID_ALIPAY: undefined,
-    EASY_PAY_CID_WXPAY: undefined,
+    EASY_PAY_CID: undefined as string | undefined,
+    EASY_PAY_CID_ALIPAY: undefined as string | undefined,
+    EASY_PAY_CID_WXPAY: undefined as string | undefined,
   })),
 }));
 vi.mock('@/lib/config', () => ({
@@ -108,10 +108,9 @@ describe('EasyPay client', () => {
 
     it('should throw when API returns code !== 1', async () => {
       global.fetch = vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({ code: -1, msg: 'Invalid parameter' }),
-          { headers: { 'content-type': 'application/json' } },
-        ),
+        new Response(JSON.stringify({ code: -1, msg: 'Invalid parameter' }), {
+          headers: { 'content-type': 'application/json' },
+        }),
       ) as typeof fetch;
 
       await expect(
@@ -296,15 +295,12 @@ describe('EasyPay client', () => {
 
     it('should throw when API returns code !== 1', async () => {
       global.fetch = vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({ code: -1, msg: 'Order not found' }),
-          { headers: { 'content-type': 'application/json' } },
-        ),
+        new Response(JSON.stringify({ code: -1, msg: 'Order not found' }), {
+          headers: { 'content-type': 'application/json' },
+        }),
       ) as typeof fetch;
 
-      await expect(queryOrder('nonexistent-order')).rejects.toThrow(
-        'EasyPay query order failed: Order not found',
-      );
+      await expect(queryOrder('nonexistent-order')).rejects.toThrow('EasyPay query order failed: Order not found');
     });
 
     it('should throw with "unknown error" when msg is absent', async () => {
@@ -314,9 +310,7 @@ describe('EasyPay client', () => {
         }),
       ) as typeof fetch;
 
-      await expect(queryOrder('order-err')).rejects.toThrow(
-        'EasyPay query order failed: unknown error',
-      );
+      await expect(queryOrder('order-err')).rejects.toThrow('EasyPay query order failed: unknown error');
     });
 
     it('should parse all response fields correctly', async () => {

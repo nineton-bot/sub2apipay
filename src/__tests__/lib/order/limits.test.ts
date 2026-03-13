@@ -1,4 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import type { MethodDefaultLimits } from '@/lib/payment/types';
 
 vi.mock('@/lib/db', () => ({
   prisma: {
@@ -28,7 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   // 默认：getEnv 返回无渠道限额字段，provider 无默认值
   mockedGetEnv.mockReturnValue({} as ReturnType<typeof getEnv>);
-  mockedGetDefaultLimit.mockReturnValue(undefined as any);
+  mockedGetDefaultLimit.mockReturnValue(undefined);
 });
 
 describe('getMethodDailyLimit', () => {
@@ -39,35 +40,35 @@ describe('getMethodDailyLimit', () => {
   it('从 getEnv 读取渠道每日限额', () => {
     mockedGetEnv.mockReturnValue({
       MAX_DAILY_AMOUNT_ALIPAY: 5000,
-    } as any);
+    } as unknown as ReturnType<typeof getEnv>);
     expect(getMethodDailyLimit('alipay')).toBe(5000);
   });
 
   it('环境变量 0 表示不限制', () => {
     mockedGetEnv.mockReturnValue({
       MAX_DAILY_AMOUNT_WXPAY: 0,
-    } as any);
+    } as unknown as ReturnType<typeof getEnv>);
     expect(getMethodDailyLimit('wxpay')).toBe(0);
   });
 
   it('getEnv 未设置时回退到 provider 默认值', () => {
-    mockedGetEnv.mockReturnValue({} as any);
-    mockedGetDefaultLimit.mockReturnValue({ dailyMax: 3000 } as any);
+    mockedGetEnv.mockReturnValue({} as ReturnType<typeof getEnv>);
+    mockedGetDefaultLimit.mockReturnValue({ dailyMax: 3000 } as MethodDefaultLimits);
     expect(getMethodDailyLimit('stripe')).toBe(3000);
   });
 
   it('getEnv 设置时覆盖 provider 默认值', () => {
     mockedGetEnv.mockReturnValue({
       MAX_DAILY_AMOUNT_STRIPE: 8000,
-    } as any);
-    mockedGetDefaultLimit.mockReturnValue({ dailyMax: 3000 } as any);
+    } as unknown as ReturnType<typeof getEnv>);
+    mockedGetDefaultLimit.mockReturnValue({ dailyMax: 3000 } as MethodDefaultLimits);
     expect(getMethodDailyLimit('stripe')).toBe(8000);
   });
 
   it('paymentType 大小写不敏感（key 构造用 toUpperCase）', () => {
     mockedGetEnv.mockReturnValue({
       MAX_DAILY_AMOUNT_ALIPAY: 2000,
-    } as any);
+    } as unknown as ReturnType<typeof getEnv>);
     expect(getMethodDailyLimit('alipay')).toBe(2000);
   });
 
@@ -76,8 +77,8 @@ describe('getMethodDailyLimit', () => {
   });
 
   it('getEnv 无值且 provider 默认值也无 dailyMax 时回退 process.env', () => {
-    mockedGetEnv.mockReturnValue({} as any);
-    mockedGetDefaultLimit.mockReturnValue({} as any); // no dailyMax
+    mockedGetEnv.mockReturnValue({} as ReturnType<typeof getEnv>);
+    mockedGetDefaultLimit.mockReturnValue({} as MethodDefaultLimits); // no dailyMax
     process.env['MAX_DAILY_AMOUNT_ALIPAY'] = '7777';
     try {
       expect(getMethodDailyLimit('alipay')).toBe(7777);
@@ -111,13 +112,13 @@ describe('getMethodSingleLimit', () => {
   });
 
   it('process.env 未设置时回退到 provider 默认值', () => {
-    mockedGetDefaultLimit.mockReturnValue({ singleMax: 200 } as any);
+    mockedGetDefaultLimit.mockReturnValue({ singleMax: 200 } as MethodDefaultLimits);
     expect(getMethodSingleLimit('alipay')).toBe(200);
   });
 
   it('process.env 设置时覆盖 provider 默认值', () => {
     process.env['MAX_SINGLE_AMOUNT_ALIPAY'] = '999';
-    mockedGetDefaultLimit.mockReturnValue({ singleMax: 200 } as any);
+    mockedGetDefaultLimit.mockReturnValue({ singleMax: 200 } as MethodDefaultLimits);
     try {
       expect(getMethodSingleLimit('alipay')).toBe(999);
     } finally {
@@ -127,7 +128,7 @@ describe('getMethodSingleLimit', () => {
 
   it('无效 process.env 值回退到 provider 默认值', () => {
     process.env['MAX_SINGLE_AMOUNT_ALIPAY'] = 'abc';
-    mockedGetDefaultLimit.mockReturnValue({ singleMax: 150 } as any);
+    mockedGetDefaultLimit.mockReturnValue({ singleMax: 150 } as MethodDefaultLimits);
     try {
       expect(getMethodSingleLimit('alipay')).toBe(150);
     } finally {

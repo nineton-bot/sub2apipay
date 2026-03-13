@@ -6,7 +6,7 @@ import OrderTable from '@/components/admin/OrderTable';
 import OrderDetail from '@/components/admin/OrderDetail';
 import PaginationBar from '@/components/PaginationBar';
 import PayPageLayout from '@/components/PayPageLayout';
-import { resolveLocale, type Locale } from '@/lib/locale';
+import { resolveLocale } from '@/lib/locale';
 
 interface AdminOrder {
   id: string;

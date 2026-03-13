@@ -17,7 +17,7 @@ describe('listSubscriptions', () => {
   it('should call correct URL with no query params when no params provided', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ data: [], total: 0, page: 1, page_size: 50 }),
+      json: () => Promise.resolve({ data: { items: [], total: 0, page: 1, page_size: 50 } }),
     }) as typeof fetch;
 
     await listSubscriptions();
@@ -30,7 +30,7 @@ describe('listSubscriptions', () => {
   it('should build correct query params when all params provided', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ data: [], total: 0, page: 2, page_size: 10 }),
+      json: () => Promise.resolve({ data: { items: [], total: 0, page: 2, page_size: 10 } }),
     }) as typeof fetch;
 
     await listSubscriptions({
@@ -51,13 +51,11 @@ describe('listSubscriptions', () => {
   });
 
   it('should parse normal response correctly', async () => {
-    const mockSubs = [
-      { id: 1, user_id: 42, group_id: 5, status: 'active', expires_at: '2026-12-31' },
-    ];
+    const mockSubs = [{ id: 1, user_id: 42, group_id: 5, status: 'active', expires_at: '2026-12-31' }];
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ data: mockSubs, total: 1, page: 1, page_size: 50 }),
+      json: () => Promise.resolve({ data: { items: mockSubs, total: 1, page: 1, page_size: 50 } }),
     }) as typeof fetch;
 
     const result = await listSubscriptions({ user_id: 42 });

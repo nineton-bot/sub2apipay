@@ -7,7 +7,7 @@ import DashboardStats from '@/components/admin/DashboardStats';
 import DailyChart from '@/components/admin/DailyChart';
 import Leaderboard from '@/components/admin/Leaderboard';
 import PaymentMethodChart from '@/components/admin/PaymentMethodChart';
-import { resolveLocale, type Locale } from '@/lib/locale';
+import { resolveLocale } from '@/lib/locale';
 
 interface DashboardData {
   summary: {
