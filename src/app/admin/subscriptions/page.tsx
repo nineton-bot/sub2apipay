@@ -534,6 +534,7 @@ function SubscriptionsContent() {
     setSubsKeyword(value);
     if (searchTimer) clearTimeout(searchTimer);
     if (!value.trim()) {
+      setSubsUserId('');
       setSearchResults([]);
       setSearchDropdownOpen(false);
       return;
@@ -569,9 +570,9 @@ function SubscriptionsContent() {
     setSubsSearched(true);
     setSubsUser(null);
     try {
-      const res = await fetch(
-        `/api/admin/subscriptions?token=${encodeURIComponent(token)}&user_id=${encodeURIComponent(subsUserId.trim())}`,
-      );
+      const qs = new URLSearchParams({ token });
+      if (subsUserId.trim()) qs.set('user_id', subsUserId.trim());
+      const res = await fetch(`/api/admin/subscriptions?${qs}`);
       if (!res.ok) {
         if (res.status === 401) {
           setError(t.invalidToken);
