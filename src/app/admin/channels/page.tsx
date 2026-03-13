@@ -660,14 +660,13 @@ function ChannelsContent() {
 
       {/* ── Edit / Create Modal ── */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={closeEditModal}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div
             className={[
               'relative w-full max-w-lg overflow-y-auto rounded-2xl border p-6 shadow-2xl',
               isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white',
             ].join(' ')}
             style={{ maxHeight: '90vh' }}
-            onClick={(e) => e.stopPropagation()}
           >
             <h2 className={`mb-5 text-lg font-semibold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
               {editingChannel ? t.editChannel : t.newChannel}
@@ -825,14 +824,13 @@ function ChannelsContent() {
 
       {/* ── Sync from Sub2API Modal ── */}
       {syncModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={closeSyncModal}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div
             className={[
               'relative w-full max-w-lg overflow-y-auto rounded-2xl border p-6 shadow-2xl',
               isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white',
             ].join(' ')}
             style={{ maxHeight: '80vh' }}
-            onClick={(e) => e.stopPropagation()}
           >
             <h2 className={`mb-1 text-lg font-semibold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
               {t.syncTitle}

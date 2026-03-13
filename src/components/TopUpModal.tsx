@@ -28,13 +28,12 @@ export default function TopUpModal({ open, onClose, onConfirm, amounts, isDark, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div
         className={[
           'relative mx-4 w-full max-w-md rounded-2xl border p-6 shadow-2xl',
           isDark ? 'border-slate-700 bg-slate-900 text-slate-100' : 'border-slate-200 bg-white text-slate-900',
         ].join(' ')}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
