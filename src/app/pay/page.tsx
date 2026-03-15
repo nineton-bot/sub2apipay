@@ -82,6 +82,7 @@ function PayContent() {
   const [showTopUpForm, setShowTopUpForm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
   const [channelsLoaded, setChannelsLoaded] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
 
   const [config, setConfig] = useState<AppConfig>({
     enabledPaymentTypes: [],
@@ -217,7 +218,10 @@ function PayContent() {
           }
         }
       }
-    } catch {}
+    } catch {
+    } finally {
+      setUserLoaded(true);
+    }
   }, [token, locale]);
 
   // 加载渠道和订阅套餐
@@ -487,8 +491,8 @@ function PayContent() {
 
   // ── 渲染 ──
   // R7: 检查是否所有入口都关闭（无可用充值方式 且 无订阅套餐）
-  const allEntriesClosed = channelsLoaded && !canTopUp && !hasPlans;
-  const showMainTabs = channelsLoaded && !allEntriesClosed && (hasChannels || hasPlans);
+  const allEntriesClosed = channelsLoaded && userLoaded && !canTopUp && !hasPlans;
+  const showMainTabs = channelsLoaded && userLoaded && !allEntriesClosed && (hasChannels || hasPlans);
   const pageTitle = showMainTabs
     ? pickLocaleText(locale, '选择适合你的 充值/订阅服务', 'Choose Your Recharge / Subscription')
     : pickLocaleText(locale, 'Sub2API 余额充值', 'Sub2API Balance Recharge');
@@ -613,7 +617,7 @@ function PayContent() {
           )}
 
           {/* 加载中 */}
-          {!channelsLoaded && config.enabledPaymentTypes.length === 0 && (
+          {(!channelsLoaded || !userLoaded) && !allEntriesClosed && (
             <div className="flex items-center justify-center py-12">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
               <span className={['ml-3 text-sm', isDark ? 'text-slate-400' : 'text-gray-500'].join(' ')}>
@@ -887,7 +891,7 @@ function PayContent() {
           )}
 
           {/* ── 无渠道配置：传统充值UI ── */}
-          {channelsLoaded && !showMainTabs && canTopUp && !selectedPlan && (
+          {channelsLoaded && userLoaded && !showMainTabs && canTopUp && !selectedPlan && (
             <>
               {isMobile ? (
                 activeMobileTab === 'pay' ? (
