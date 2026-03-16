@@ -70,7 +70,7 @@ export async function createPayment(opts: CreatePaymentOptions): Promise<EasyPay
   }
 
   if (opts.isMobile) {
-    params.device = 'jump';
+    params.device = 'mobile';
   }
 
   const sign = generateSign(params, env.EASY_PAY_PKEY);

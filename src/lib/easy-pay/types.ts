@@ -18,6 +18,7 @@ export interface EasyPayCreateResponse {
   trade_no: string;
   O_id?: string;
   payurl?: string;
+  payurl2?: string;
   qrcode?: string;
   img?: string;
 }

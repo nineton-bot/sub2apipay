@@ -34,7 +34,7 @@ export class EasyPayProvider implements PaymentProvider {
 
     return {
       tradeNo: result.trade_no,
-      payUrl: result.payurl,
+      payUrl: (request.isMobile && result.payurl2) || result.payurl,
       qrCode: result.qrcode,
     };
   }
