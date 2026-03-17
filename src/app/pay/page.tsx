@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import PaymentForm from '@/components/PaymentForm';
 import PaymentQRCode from '@/components/PaymentQRCode';
 import OrderStatus from '@/components/OrderStatus';
@@ -83,6 +83,7 @@ function PayContent() {
   const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
   const [channelsLoaded, setChannelsLoaded] = useState(false);
   const [userLoaded, setUserLoaded] = useState(false);
+  const initialMainTabResolvedRef = useRef(false);
 
   const [config, setConfig] = useState<AppConfig>({
     enabledPaymentTypes: [],
@@ -277,6 +278,20 @@ function PayContent() {
     loadUserAndOrders();
     loadChannelsAndPlans();
   }, [loadUserAndOrders, loadChannelsAndPlans]);
+
+  useEffect(() => {
+    if (initialMainTabResolvedRef.current) return;
+    if (!channelsLoaded || !userLoaded) return;
+
+    // Existing subscribers expect the purchase page to open on the subscription
+    // catalog, otherwise the first screen only shows top-up content while the
+    // renew action later switches them to the plan list.
+    if (userSubscriptions.length > 0 && plans.length > 0) {
+      setMainTab('subscribe');
+    }
+
+    initialMainTabResolvedRef.current = true;
+  }, [channelsLoaded, userLoaded, userSubscriptions.length, plans.length]);
 
   useEffect(() => {
     if (step !== 'result' || finalOrderState?.status !== 'COMPLETED') return;
