@@ -2,6 +2,7 @@ import WxPay from 'wechatpay-node-v3';
 import crypto from 'crypto';
 import { getEnv } from '@/lib/config';
 import type { WxpayPcOrderParams, WxpayH5OrderParams, WxpayRefundParams } from './types';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 /** 自动补全 PEM 格式（公钥） */
 function formatPublicKey(key: string): string {
@@ -70,6 +71,12 @@ async function request<T>(method: string, url: string, body?: Record<string, unk
     'User-Agent': 'Sub2ApiPay/1.0',
   };
 
+  paymentDebugLog('wxpay.client.request', {
+    method,
+    url: `${BASE_URL}${url}`,
+    body,
+  });
+
   const res = await fetch(`${BASE_URL}${url}`, {
     method,
     headers,
@@ -80,7 +87,19 @@ async function request<T>(method: string, url: string, body?: Record<string, unk
   if (res.status === 204) return {} as T;
 
   const data = await res.json();
+  paymentDebugLog('wxpay.client.response', {
+    method,
+    url: `${BASE_URL}${url}`,
+    status: res.status,
+    ok: res.ok,
+    data,
+  });
   if (!res.ok) {
+    paymentDebugError('wxpay.client.error', new Error(`HTTP ${res.status}`), {
+      method,
+      url: `${BASE_URL}${url}`,
+      data,
+    });
     const code = (data as Record<string, string>).code || res.status;
     const message = (data as Record<string, string>).message || res.statusText;
     throw new Error(`Wxpay API error: [${code}] ${message}`);

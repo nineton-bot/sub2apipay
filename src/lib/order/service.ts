@@ -21,6 +21,7 @@ import { pickLocaleText, type Locale } from '@/lib/locale';
 import { getBizDayStartUTC } from '@/lib/time/biz-day';
 import { buildOrderResultUrl, createOrderStatusAccessToken } from '@/lib/order/status-access';
 import { getSystemConfig, getSystemConfigs } from '@/lib/system-config';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 const MAX_PENDING_ORDERS = 3;
 /** Decimal(10,2) 允许的最大金额 */
@@ -272,6 +273,21 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       returnUrl = orderResultUrl;
     }
 
+    paymentDebugLog('order.create.provider_request', {
+      orderId: order.id,
+      orderType,
+      userId: order.userId,
+      provider: provider.name,
+      providerKey: provider.providerKey,
+      paymentType: input.paymentType,
+      amount: Number(order.amount),
+      payAmount: payAmountNum,
+      notifyUrl: notifyUrl ?? null,
+      returnUrl: returnUrl ?? null,
+      isMobile: input.isMobile ?? false,
+      clientIp: input.clientIp,
+    });
+
     // R3+R5: 构建支付商品名称
     let paymentSubject: string;
     if (subscriptionPlan) {
@@ -298,6 +314,15 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       returnUrl,
       clientIp: input.clientIp,
       isMobile: input.isMobile,
+    });
+
+    paymentDebugLog('order.create.provider_response', {
+      orderId: order.id,
+      provider: provider.name,
+      tradeNo: paymentResult.tradeNo,
+      hasPayUrl: Boolean(paymentResult.payUrl),
+      hasQrCode: Boolean(paymentResult.qrCode),
+      hasClientSecret: Boolean(paymentResult.clientSecret),
     });
 
     await prisma.order.update({
@@ -344,6 +369,11 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       statusAccessToken,
     };
   } catch (error) {
+    paymentDebugError('order.create.provider_error', error, {
+      orderId: order.id,
+      paymentType: input.paymentType,
+      orderType,
+    });
     await prisma.order.delete({ where: { id: order.id } });
 
     // 已经是业务错误，直接向上抛
@@ -493,6 +523,7 @@ export async function confirmPayment(input: {
   paidAmount: number;
   providerName: string;
 }): Promise<boolean> {
+  paymentDebugLog('payment.confirm.start', input);
   const order = await prisma.order.findUnique({
     where: { id: input.orderId },
   });
@@ -623,6 +654,13 @@ export async function confirmPayment(input: {
  * via provider.verifyNotification() before calling this function.
  */
 export async function handlePaymentNotify(notification: PaymentNotification, providerName: string): Promise<boolean> {
+  paymentDebugLog('payment.notify.received', {
+    providerName,
+    orderId: notification.orderId,
+    tradeNo: notification.tradeNo,
+    amount: notification.amount,
+    status: notification.status,
+  });
   if (notification.status !== 'success') {
     return true;
   }
@@ -677,6 +715,12 @@ export async function executeSubscriptionFulfillment(orderId: string): Promise<v
   if (lockResult.count === 0) return;
 
   try {
+    paymentDebugLog('subscription.fulfillment.start', {
+      orderId,
+      userId: order.userId,
+      subscriptionGroupId: order.subscriptionGroupId,
+      subscriptionDays: order.subscriptionDays,
+    });
     // 校验分组是否仍然存在
     const group = await getGroup(order.subscriptionGroupId);
     if (!group || group.status !== 'active') {
@@ -720,6 +764,15 @@ export async function executeSubscriptionFulfillment(orderId: string): Promise<v
       },
     );
 
+    paymentDebugLog('subscription.fulfillment.redeem_success', {
+      orderId,
+      rechargeCode: order.rechargeCode,
+      groupId: order.subscriptionGroupId,
+      validityDays,
+      method: fulfillMethod,
+      renewedSubscriptionId: renewedSubscriptionId ?? null,
+    });
+
     await prisma.order.updateMany({
       where: { id: orderId, status: ORDER_STATUS.RECHARGING },
       data: { status: ORDER_STATUS.COMPLETED, completedAt: new Date() },
@@ -740,6 +793,7 @@ export async function executeSubscriptionFulfillment(orderId: string): Promise<v
       },
     });
   } catch (error) {
+    paymentDebugError('subscription.fulfillment.error', error, { orderId });
     const reason = error instanceof Error ? error.message : String(error);
     const isGroupGone = reason.includes('no longer exists');
 
@@ -791,12 +845,24 @@ export async function executeRecharge(orderId: string): Promise<void> {
   }
 
   try {
+    paymentDebugLog('recharge.fulfillment.start', {
+      orderId,
+      userId: order.userId,
+      amount: Number(order.amount),
+      rechargeCode: order.rechargeCode,
+    });
     await createAndRedeem(
       order.rechargeCode,
       Number(order.amount),
       order.userId,
       `sub2apipay recharge order:${orderId}`,
     );
+
+    paymentDebugLog('recharge.fulfillment.redeem_success', {
+      orderId,
+      rechargeCode: order.rechargeCode,
+      amount: Number(order.amount),
+    });
 
     await prisma.order.updateMany({
       where: { id: orderId, status: ORDER_STATUS.RECHARGING },
@@ -812,6 +878,7 @@ export async function executeRecharge(orderId: string): Promise<void> {
       },
     });
   } catch (error) {
+    paymentDebugError('recharge.fulfillment.error', error, { orderId });
     await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -1018,6 +1085,12 @@ export async function processRefund(input: RefundInput): Promise<RefundResult> {
   }
 
   try {
+    paymentDebugLog('refund.start', {
+      orderId: input.orderId,
+      force: input.force ?? false,
+      rechargeAmount,
+      refundAmount,
+    });
     // 1. 先扣减用户余额（安全方向：先扣后退）
     await subtractBalance(
       order.userId,
@@ -1036,6 +1109,12 @@ export async function processRefund(input: RefundInput): Promise<RefundResult> {
           orderId: order.id,
           amount: refundAmount,
           reason: input.reason,
+        });
+        paymentDebugLog('refund.gateway_success', {
+          orderId: input.orderId,
+          paymentType: order.paymentType,
+          paymentTradeNo: order.paymentTradeNo,
+          refundAmount,
         });
       } catch (gatewayError) {
         // 3. 网关退款失败 — 恢复已扣减的余额
@@ -1091,6 +1170,7 @@ export async function processRefund(input: RefundInput): Promise<RefundResult> {
 
     return { success: true };
   } catch (error) {
+    paymentDebugError('refund.error', error, { orderId: input.orderId });
     await prisma.order.update({
       where: { id: input.orderId },
       data: {

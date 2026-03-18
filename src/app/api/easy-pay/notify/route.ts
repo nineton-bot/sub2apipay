@@ -3,6 +3,7 @@ import { handlePaymentNotify } from '@/lib/order/service';
 import { paymentRegistry } from '@/lib/payment';
 import type { PaymentType } from '@/lib/payment';
 import { extractHeaders } from '@/lib/utils/api';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,16 +11,28 @@ export async function GET(request: NextRequest) {
     const provider = paymentRegistry.getProvider('alipay' as PaymentType);
     const rawBody = request.nextUrl.searchParams.toString();
     const headers = extractHeaders(request);
+    paymentDebugLog('easypay.notify.request', {
+      rawQuery: rawBody,
+      headers,
+    });
 
     const notification = await provider.verifyNotification(rawBody, headers);
     if (!notification) {
+      paymentDebugLog('easypay.notify.ignored', { reason: 'provider returned empty notification' });
       return new Response('success', { headers: { 'Content-Type': 'text/plain' } });
     }
+    paymentDebugLog('easypay.notify.verified', notification);
     const success = await handlePaymentNotify(notification, provider.name);
+    paymentDebugLog('easypay.notify.fulfillment_result', {
+      orderId: notification.orderId,
+      tradeNo: notification.tradeNo,
+      success,
+    });
     return new Response(success ? 'success' : 'fail', {
       headers: { 'Content-Type': 'text/plain' },
     });
   } catch (error) {
+    paymentDebugError('easypay.notify.error', error);
     console.error('EasyPay notify error:', error);
     return new Response('fail', {
       headers: { 'Content-Type': 'text/plain' },

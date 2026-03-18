@@ -1,5 +1,6 @@
 import { getEnv } from '@/lib/config';
 import type { Sub2ApiUser, Sub2ApiRedeemCode, Sub2ApiGroup, Sub2ApiSubscription } from './types';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const RECHARGE_TIMEOUT_MS = 30_000;
@@ -24,6 +25,9 @@ function isRetryableFetchError(error: unknown): boolean {
 
 export async function getCurrentUserByToken(token: string): Promise<Sub2ApiUser> {
   const env = getEnv();
+  paymentDebugLog('sub2api.get_current_user.request', {
+    url: `${env.SUB2API_BASE_URL}/api/v1/auth/me`,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -32,26 +36,34 @@ export async function getCurrentUserByToken(token: string): Promise<Sub2ApiUser>
   });
 
   if (!response.ok) {
+    paymentDebugLog('sub2api.get_current_user.response', { status: response.status });
     throw new Error(`Failed to get current user: ${response.status}`);
   }
 
   const data = await response.json();
+  paymentDebugLog('sub2api.get_current_user.success', { userId: data.data?.id ?? null });
   return data.data as Sub2ApiUser;
 }
 
 export async function getUser(userId: number): Promise<Sub2ApiUser> {
   const env = getEnv();
+  paymentDebugLog('sub2api.get_user.request', {
+    userId,
+    url: `${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}`,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}`, {
     headers: getHeaders(),
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
   });
 
   if (!response.ok) {
+    paymentDebugLog('sub2api.get_user.response', { userId, status: response.status });
     if (response.status === 404) throw new Error('USER_NOT_FOUND');
     throw new Error(`Failed to get user: ${response.status}`);
   }
 
   const data = await response.json();
+  paymentDebugLog('sub2api.get_user.success', { userId, status: data.data?.status ?? null });
   return data.data as Sub2ApiUser;
 }
 
@@ -80,6 +92,15 @@ export async function createAndRedeem(
 
   for (let attempt = 1; attempt <= RECHARGE_MAX_ATTEMPTS; attempt += 1) {
     try {
+      paymentDebugLog('sub2api.create_and_redeem.request', {
+        attempt,
+        userId,
+        code,
+        value,
+        type: options?.type ?? 'balance',
+        groupId: options?.groupId ?? null,
+        validityDays: options?.validityDays ?? null,
+      });
       const response = await fetch(url, {
         method: 'POST',
         headers: getHeaders(`sub2apipay:recharge:${code}`),
@@ -89,13 +110,24 @@ export async function createAndRedeem(
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        paymentDebugLog('sub2api.create_and_redeem.response', {
+          attempt,
+          status: response.status,
+          errorData,
+        });
         throw new Error(`Recharge failed (${response.status}): ${JSON.stringify(errorData)}`);
       }
 
       const data = await response.json();
+      paymentDebugLog('sub2api.create_and_redeem.success', {
+        attempt,
+        code,
+        redeemCode: data.redeem_code?.code ?? code,
+      });
       return data.redeem_code as Sub2ApiRedeemCode;
     } catch (error) {
       lastError = error;
+      paymentDebugError('sub2api.create_and_redeem.error', error, { attempt, code, userId });
       if (attempt >= RECHARGE_MAX_ATTEMPTS || !isRetryableFetchError(error)) {
         throw error;
       }
@@ -125,17 +157,27 @@ export async function getAllGroups(): Promise<Sub2ApiGroup[]> {
 
 export async function getGroup(groupId: number): Promise<Sub2ApiGroup | null> {
   const env = getEnv();
+  paymentDebugLog('sub2api.get_group.request', {
+    groupId,
+    url: `${env.SUB2API_BASE_URL}/api/v1/admin/groups/${groupId}`,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/admin/groups/${groupId}`, {
     headers: getHeaders(),
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
   });
 
   if (!response.ok) {
+    paymentDebugLog('sub2api.get_group.response', { groupId, status: response.status });
     if (response.status === 404) return null;
     throw new Error(`Failed to get group ${groupId}: ${response.status}`);
   }
 
   const data = await response.json();
+  paymentDebugLog('sub2api.get_group.success', {
+    groupId,
+    status: data.data?.status ?? null,
+    subscriptionType: data.data?.subscription_type ?? null,
+  });
   return data.data as Sub2ApiGroup;
 }
 
@@ -172,17 +214,26 @@ export async function assignSubscription(
 
 export async function getUserSubscriptions(userId: number): Promise<Sub2ApiSubscription[]> {
   const env = getEnv();
+  paymentDebugLog('sub2api.get_user_subscriptions.request', {
+    userId,
+    url: `${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}/subscriptions`,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}/subscriptions`, {
     headers: getHeaders(),
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
   });
 
   if (!response.ok) {
+    paymentDebugLog('sub2api.get_user_subscriptions.response', { userId, status: response.status });
     if (response.status === 404) return [];
     throw new Error(`Failed to get user subscriptions: ${response.status}`);
   }
 
   const data = await response.json();
+  paymentDebugLog('sub2api.get_user_subscriptions.success', {
+    userId,
+    count: Array.isArray(data.data) ? data.data.length : 0,
+  });
   return (data.data ?? []) as Sub2ApiSubscription[];
 }
 
@@ -210,6 +261,11 @@ export async function subtractBalance(
   idempotencyKey: string,
 ): Promise<void> {
   const env = getEnv();
+  paymentDebugLog('sub2api.subtract_balance.request', {
+    userId,
+    amount,
+    notes,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}/balance`, {
     method: 'POST',
     headers: getHeaders(idempotencyKey),
@@ -223,8 +279,10 @@ export async function subtractBalance(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    paymentDebugLog('sub2api.subtract_balance.response', { userId, status: response.status, errorData });
     throw new Error(`Subtract balance failed (${response.status}): ${JSON.stringify(errorData)}`);
   }
+  paymentDebugLog('sub2api.subtract_balance.success', { userId, amount });
 }
 
 // ── 用户搜索 API ──
@@ -286,6 +344,11 @@ export async function listSubscriptions(params?: {
 
 export async function addBalance(userId: number, amount: number, notes: string, idempotencyKey: string): Promise<void> {
   const env = getEnv();
+  paymentDebugLog('sub2api.add_balance.request', {
+    userId,
+    amount,
+    notes,
+  });
   const response = await fetch(`${env.SUB2API_BASE_URL}/api/v1/admin/users/${userId}/balance`, {
     method: 'POST',
     headers: getHeaders(idempotencyKey),
@@ -299,6 +362,8 @@ export async function addBalance(userId: number, amount: number, notes: string, 
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    paymentDebugLog('sub2api.add_balance.response', { userId, status: response.status, errorData });
     throw new Error(`Add balance failed (${response.status}): ${JSON.stringify(errorData)}`);
   }
+  paymentDebugLog('sub2api.add_balance.success', { userId, amount });
 }

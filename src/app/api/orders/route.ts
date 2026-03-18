@@ -6,6 +6,7 @@ import { paymentRegistry } from '@/lib/payment';
 import { getEnabledPaymentTypes } from '@/lib/payment/resolve-enabled-types';
 import { getCurrentUserByToken } from '@/lib/sub2api/client';
 import { handleApiError } from '@/lib/utils/api';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 const createOrderSchema = z.object({
   token: z.string().min(1),
@@ -47,8 +48,23 @@ export async function POST(request: NextRequest) {
       const user = await getCurrentUserByToken(token);
       userId = user.id;
     } catch {
+      paymentDebugLog('api.orders.invalid_token', {
+        paymentType: payment_type,
+        orderType: order_type ?? 'balance',
+      });
       return NextResponse.json({ error: '无效的 token，请重新登录', code: 'INVALID_TOKEN' }, { status: 401 });
     }
+
+    paymentDebugLog('api.orders.request', {
+      userId,
+      amount,
+      paymentType: payment_type,
+      orderType: order_type ?? 'balance',
+      planId: plan_id ?? null,
+      isMobile: is_mobile ?? false,
+      srcHost: src_host ?? null,
+      hasSrcUrl: Boolean(src_url),
+    });
 
     // 订阅订单跳过金额范围校验（价格由服务端套餐决定）
     if (order_type !== 'subscription') {
@@ -62,6 +78,10 @@ export async function POST(request: NextRequest) {
 
     // Validate payment type is enabled (registry + ENABLED_PAYMENT_TYPES config)
     const enabledTypes = await getEnabledPaymentTypes();
+    paymentDebugLog('api.orders.enabled_types', {
+      requestedPaymentType: payment_type,
+      enabledTypes,
+    });
     if (!enabledTypes.includes(payment_type)) {
       return NextResponse.json({ error: `不支持的支付方式: ${payment_type}` }, { status: 400 });
     }
@@ -83,8 +103,19 @@ export async function POST(request: NextRequest) {
 
     // 不向客户端暴露 userName / userBalance 等隐私字段
     const { userName: _u, userBalance: _b, ...safeResult } = result;
+    paymentDebugLog('api.orders.success', {
+      orderId: safeResult.orderId,
+      paymentType: safeResult.paymentType,
+      status: safeResult.status,
+      amount: safeResult.amount,
+      payAmount: safeResult.payAmount,
+      hasPayUrl: Boolean(safeResult.payUrl),
+      hasQrCode: Boolean(safeResult.qrCode),
+      hasClientSecret: Boolean(safeResult.clientSecret),
+    });
     return NextResponse.json(safeResult);
   } catch (error) {
+    paymentDebugError('api.orders.failure', error);
     return handleApiError(error, '创建订单失败，请稍后重试');
   }
 }

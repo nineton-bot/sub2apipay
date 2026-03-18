@@ -4,6 +4,7 @@ import { paymentRegistry } from '@/lib/payment';
 import type { PaymentType } from '@/lib/payment';
 import { getEnv } from '@/lib/config';
 import { extractHeaders } from '@/lib/utils/api';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,16 +17,28 @@ export async function POST(request: NextRequest) {
     const provider = paymentRegistry.getProvider('wxpay_direct' as PaymentType);
     const rawBody = await request.text();
     const headers = extractHeaders(request);
+    paymentDebugLog('wxpay.notify.request', {
+      bodyLength: rawBody.length,
+      headers,
+    });
 
     const notification = await provider.verifyNotification(rawBody, headers);
     if (!notification) {
+      paymentDebugLog('wxpay.notify.ignored', { reason: 'provider returned null notification' });
       return Response.json({ code: 'SUCCESS', message: '成功' });
     }
+    paymentDebugLog('wxpay.notify.verified', notification);
     const success = await handlePaymentNotify(notification, provider.name);
+    paymentDebugLog('wxpay.notify.fulfillment_result', {
+      orderId: notification.orderId,
+      tradeNo: notification.tradeNo,
+      success,
+    });
     return Response.json(success ? { code: 'SUCCESS', message: '成功' } : { code: 'FAIL', message: '处理失败' }, {
       status: success ? 200 : 500,
     });
   } catch (error) {
+    paymentDebugError('wxpay.notify.error', error);
     console.error('Wxpay notify error:', error);
     return Response.json({ code: 'FAIL', message: '处理失败' }, { status: 500 });
   }

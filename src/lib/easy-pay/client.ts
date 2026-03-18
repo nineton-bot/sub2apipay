@@ -1,6 +1,7 @@
 import { getEnv } from '@/lib/config';
 import { generateSign } from './sign';
 import type { EasyPayCreateResponse, EasyPayQueryResponse, EasyPayRefundResponse } from './types';
+import { paymentDebugError, paymentDebugLog } from '@/lib/payment-debug';
 
 export interface CreatePaymentOptions {
   outTradeNo: string;
@@ -78,6 +79,15 @@ export async function createPayment(opts: CreatePaymentOptions): Promise<EasyPay
   params.sign_type = 'MD5';
 
   const formData = new URLSearchParams(params);
+  paymentDebugLog('easypay.client.create_payment.request', {
+    apiBase: env.EASY_PAY_API_BASE,
+    outTradeNo: opts.outTradeNo,
+    paymentType: opts.paymentType,
+    amount: opts.amount,
+    isMobile: opts.isMobile ?? false,
+    hasCid: Boolean(cid),
+    params,
+  });
   const response = await fetch(`${env.EASY_PAY_API_BASE}/mapi.php`, {
     method: 'POST',
     body: formData,
@@ -86,7 +96,15 @@ export async function createPayment(opts: CreatePaymentOptions): Promise<EasyPay
   });
 
   const data = (await response.json()) as EasyPayCreateResponse;
+  paymentDebugLog('easypay.client.create_payment.response', {
+    status: response.status,
+    data,
+  });
   if (data.code !== 1) {
+    paymentDebugError('easypay.client.create_payment.error', new Error(data.msg || 'unknown error'), {
+      status: response.status,
+      data,
+    });
     throw new Error(`EasyPay create payment failed: ${data.msg || 'unknown error'}`);
   }
   return data;
@@ -108,7 +126,17 @@ export async function queryOrder(outTradeNo: string): Promise<EasyPayQueryRespon
     signal: AbortSignal.timeout(10_000),
   });
   const data = (await response.json()) as EasyPayQueryResponse;
+  paymentDebugLog('easypay.client.query_order.response', {
+    outTradeNo,
+    status: response.status,
+    data,
+  });
   if (data.code !== 1) {
+    paymentDebugError('easypay.client.query_order.error', new Error(data.msg || 'unknown error'), {
+      outTradeNo,
+      status: response.status,
+      data,
+    });
     throw new Error(`EasyPay query order failed: ${data.msg || 'unknown error'}`);
   }
   return data;
@@ -130,7 +158,19 @@ export async function refund(tradeNo: string, outTradeNo: string, money: string)
     signal: AbortSignal.timeout(10_000),
   });
   const data = (await response.json()) as EasyPayRefundResponse;
+  paymentDebugLog('easypay.client.refund.response', {
+    tradeNo,
+    outTradeNo,
+    status: response.status,
+    data,
+  });
   if (data.code !== 1) {
+    paymentDebugError('easypay.client.refund.error', new Error(data.msg || 'unknown error'), {
+      tradeNo,
+      outTradeNo,
+      status: response.status,
+      data,
+    });
     throw new Error(`EasyPay refund failed: ${data.msg || 'unknown error'}`);
   }
   return data;
